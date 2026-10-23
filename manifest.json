@@ -1,0 +1,14 @@
+{
+  "name": "RR Studio Details",
+  "short_name": "RR Studio",
+  "description": "Estética automotiva: polimento, vitrificação, higienização e lavagem detalhada.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0b0b0d",
+  "theme_color": "#e0141e",
+  "lang": "pt-BR",
+  "icons": [
+    { "src": "assets/img/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" },
+    { "src": "assets/img/apple-touch-icon.png", "sizes": "180x180", "type": "image/png" }
+  ]
+}
