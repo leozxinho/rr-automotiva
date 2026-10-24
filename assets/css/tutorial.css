@@ -191,9 +191,13 @@
   transition: top 0.45s cubic-bezier(0.4, 0, 0.2, 1),
               left 0.45s cubic-bezier(0.4, 0, 0.2, 1),
               width 0.45s cubic-bezier(0.4, 0, 0.2, 1),
-              height 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+              height 0.45s cubic-bezier(0.4, 0, 0.2, 1),
+              opacity 0.25s ease;
   z-index: 301;
   will-change: top, left, width, height;
+}
+.tut-spotlight--dim {
+  opacity: 0 !important;
 }
 
 /* ── Card flutuante (desktop: fixo; mobile: fixo na base) ─── */
@@ -477,12 +481,12 @@
 }
 .tut-next--cta:hover { background: var(--red-deep); border-color: var(--red-deep); color: #fff; }
 
-/* ── Mobile: card fixo na base ───────────────────────────── */
+/* ── Mobile: card fixo na base — layout limpo e compacto ──── */
 @media (max-width: 640px) {
+  /* Card */
   .tut-card {
-    /* fixo na base, acima da .mbar */
     position: fixed !important;
-    bottom: calc(env(safe-area-inset-bottom, 0px) + 70px);
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 68px);
     left: 8px;
     right: 8px;
     top: auto !important;
@@ -490,10 +494,103 @@
     max-width: none;
     border-radius: 16px;
     transition: opacity 0.3s ease;
-    max-height: calc(100dvh - 200px);
+    box-shadow: 0 -2px 0 0 var(--red), 0 8px 32px rgba(0,0,0,0.55);
   }
+
+  /* Cabeçalho compacto */
+  .tut-card-head {
+    padding: 10px 14px 8px;
+  }
+  .tut-card-step {
+    font-size: 10px;
+    letter-spacing: 0.12em;
+  }
+  .tut-card-close {
+    width: 26px;
+    height: 26px;
+    font-size: 13px;
+    border-radius: 6px;
+  }
+
+  /* Dots → barra de progresso segmentada */
+  .tut-dots {
+    padding: 0 14px 10px;
+    gap: 3px;
+  }
+  .tut-dot,
+  .tut-dot.tut-dot--active {
+    flex: 1;
+    height: 3px;
+    width: auto;
+    border-radius: 2px;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+
+  /* Corpo: sem scroll, fonte compacta */
   .tut-card-body {
-    max-height: 120px;
+    padding: 0 14px 12px;
+    max-height: none;
+    overflow: visible;
+  }
+  .tut-card-title {
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    margin-bottom: 8px;
+  }
+  .tut-phrase {
+    font-size: 13px;
+    line-height: 1.55;
+    padding: 3px 0;
+    border-radius: 0;
+  }
+  .tut-phrase--active {
+    background: none;
+    color: var(--chrome);
+    font-weight: 500;
+  }
+
+  /* Controles de áudio: só play + mute — sem velocidade, sem auto */
+  .tut-card-audio {
+    padding: 8px 14px;
+    border-top: 1px solid var(--line);
+    gap: 8px;
+    flex-wrap: nowrap;
+  }
+  .tut-speed-group,
+  .tut-auto-label {
+    display: none !important;
+  }
+  .tut-play-btn {
+    min-width: 84px;
+    font-size: 11px;
+    min-height: 34px;
+    padding: 0 12px;
+    flex: 1;
+  }
+  .tut-mute {
+    width: 34px;
+    height: 34px;
+    flex: none;
+  }
+
+  /* Rodapé: botões compactos na mesma linha */
+  .tut-card-footer {
+    padding: 8px 14px 14px;
+    gap: 8px;
+  }
+  .tut-prev {
+    flex: none;
+    padding: 10px 14px;
+    font-size: 12px;
+    min-width: 0;
+  }
+  .tut-next {
+    font-size: 12px;
+    padding: 10px 14px;
+  }
+  .tut-next--cta {
+    font-size: 11px;
   }
 }
 
@@ -646,6 +743,7 @@
   .tut-welcome-backdrop,
   .tut-overlay,
   .tut-spotlight,
+  .tut-spotlight--dim,
   .tut-card,
   .tut-fab,
   .tut-phrase,

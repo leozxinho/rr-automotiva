@@ -274,6 +274,7 @@
         if (!s.open) return;
         positionSpotlight(idx);
         positionCard(idx);
+        tutSpotlight.classList.remove('tut-spotlight--dim');
         if (!tutOverlay.classList.contains('tut--open')) {
           tutOverlay.classList.add('tut--open');
         }
@@ -283,6 +284,7 @@
 
     if (typeof step.carouselIndex === 'number') {
       s.rotating = true;
+      tutSpotlight.classList.add('tut-spotlight--dim');
       var spinDots = document.querySelectorAll('.spin-dot');
       if (spinDots[step.carouselIndex]) {
         spinDots[step.carouselIndex].click();
@@ -302,12 +304,11 @@
     if (!target) { cb && cb(); return; }
 
     if (IS_MOBILE()) {
-      /* garante que o elemento fique visível acima do card (~260px) + header (~60px) */
+      /* garante que o elemento fique visível acima do card (~220px) + header (~60px) */
       var rect     = target.getBoundingClientRect();
-      var cardH    = 260;
+      var cardH    = 220;
       var headerH  = 60;
       var ideal    = rect.top + window.scrollY - headerH - 24;
-      var max      = ideal + rect.height + cardH;
       if (rect.top < headerH || rect.bottom > window.innerHeight - cardH - 10) {
         window.scrollTo({ top: ideal, behavior: REDUCED ? 'auto' : 'smooth' });
       }
@@ -315,7 +316,7 @@
       target.scrollIntoView({ behavior: REDUCED ? 'auto' : 'smooth', block: 'center' });
     }
 
-    var delay = REDUCED ? 0 : 550;
+    var delay = REDUCED ? 0 : (IS_MOBILE() ? 300 : 550);
     setTimeout(function () { cb && cb(); }, delay);
   }
 
