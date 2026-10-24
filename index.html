@@ -20,6 +20,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&family=Barlow:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
 <link rel="preload" as="image" href="assets/img/logo-rr.webp">
 <link rel="stylesheet" href="assets/css/style.css">
+<link rel="stylesheet" href="assets/css/tutorial.css">
 <link rel="manifest" href="manifest.json">
 <script type="application/ld+json">
 {
@@ -53,6 +54,7 @@
       <li><a href="#processo">Processo</a></li>
       <li><a href="#orcamento">Orçamento</a></li>
       <li><a href="#contato">Contato</a></li>
+      <li><a href="#" class="js-tut" data-tut-step="0">Como funciona</a></li>
     </ul>
     <button class="theme-toggle" id="theme-toggle" aria-label="Alternar tema claro/escuro">
       <svg class="icon-sun" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
@@ -73,6 +75,9 @@
           <a class="btn btn-red js-wa" href="#" target="_blank" rel="noopener">Agendar horário</a>
           <a class="btn btn-ghost" href="#orcamento">Montar orçamento</a>
         </div>
+        <a href="#" class="tut-hero-link js-tut" data-tut-step="0" aria-label="Abrir tutorial: como funciona em 1 minuto">
+          <svg viewBox="0 0 16 16" width="12" height="12" fill="currentColor" aria-hidden="true"><path d="M4 3l10 5-10 5V3z"/></svg>Veja como funciona <span>(1 min)</span>
+        </a>
         <div class="specs">
           <div><b>8</b>Serviços</div>
           <div><b>1 a 1</b>Um carro por vez</div>
@@ -254,6 +259,16 @@
       <div class="sec-head" data-reveal>
         <div><p class="eyebrow">Dúvidas frequentes</p><h2 style="margin-top:12px">Antes de agendar</h2></div>
       </div>
+      <button type="button" class="tut-faq-card js-tut" data-tut-step="0" data-reveal aria-label="Abrir tutorial passo a passo">
+        <span class="tut-faq-icon">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16v.5"/></svg>
+        </span>
+        <span class="tut-faq-body">
+          <strong>Primeira vez? Veja o passo a passo.</strong>
+          <span>Como funcionam os serviços e como pedir orçamento — em 1 minuto.</span>
+        </span>
+        <span class="tut-faq-arrow" aria-hidden="true">›</span>
+      </button>
       <div class="faq">
         <details data-reveal><summary>Polimento tira qualquer risco?</summary><p>Tira os riscos que estão dentro do verniz. Se o risco chegou na cor ou na chapa, ele fica bem menos visível, mas só funilaria e pintura resolvem por completo. Isso é avaliado na inspeção, antes de começar.</p></details>
         <details data-reveal style="--reveal-delay:80ms"><summary>Qual a diferença entre cera e vitrificação?</summary><p>A cera dá brilho e proteção por algumas semanas. A vitrificação forma uma camada mais dura e duradoura, que facilita a lavagem e protege contra sol e chuva ácida por bem mais tempo.</p></details>
@@ -320,6 +335,8 @@
   <a class="btn btn-ghost" href="#orcamento">Orçamento</a>
 </div>
 
+<script src="assets/js/tutorial-data.js"></script>
+<script src="assets/js/tutorial.js"></script>
 <script src="assets/js/main.js"></script>
 </body>
 </html>

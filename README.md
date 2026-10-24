@@ -19,6 +19,45 @@ favicon.ico
 
 Na Netlify também funciona: arraste a pasta em app.netlify.com/drop.
 
+## Tutorial "Como funciona"
+
+O tutorial guiado fica em três arquivos:
+- `assets/js/tutorial-data.js` — roteiro, textos e seções-alvo (edite aqui)
+- `assets/js/tutorial.js` — lógica do player (não precisa editar)
+- `assets/css/tutorial.css` — estilos (não precisa editar)
+
+### Áudios (pré-gravados ou gerados)
+
+Coloque os arquivos em `assets/audio/tutorial/` com os nomes `01.mp3` … `06.mp3`.
+
+**Especificações técnicas:**
+- Formato: MP3 mono, 64–96 kbps
+- Volume: normalizado em −16 LUFS, sem chiado
+- Sem música de fundo (ou trilha muito baixa, −30 dB)
+
+**Voz:**
+- Voz feminina adulta, pt-BR, sotaque neutro
+- Tom suave, calmo e acolhedor (como uma atendente simpática)
+- Ritmo: ~140 palavras por minuto
+- Pausas naturais entre frases (~400 ms) e entre etapas
+
+**Pronúncias:**
+- "RR" → "érre érre"
+- "PPF" → "pê-pê-éfe"
+- "WhatsApp" → "uótsap"
+
+**Serviços recomendados:** ElevenLabs, Azure Neural TTS ou Google Cloud TTS (pt-BR neural).
+Use exatamente os textos das `phrases` em `tutorial-data.js`.
+
+**Legendas sincronizadas:** após gerar/gravar, preencha o campo `timestamps` de cada etapa
+em `tutorial-data.js` com os segundos de início de cada frase:
+```js
+timestamps: [0, 3.2, 7.8]  // uma entrada por frase
+```
+Sem o campo preenchido o tutorial funciona normalmente com a voz do aparelho como fallback.
+
+---
+
 ## Editar dados do studio
 No início de `assets/js/main.js`, no bloco `CONFIG`:
 - `whatsapp` — número com DDI e DDD, só dígitos (atual: 5514991096648)

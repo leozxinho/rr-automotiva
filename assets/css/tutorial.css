@@ -1,0 +1,663 @@
+/* ============================================================
+   RR Studio Details — Tutorial "Como funciona"
+   Spotlight tour: overlay com recorte no elemento alvo.
+   Usa apenas variáveis definidas em style.css (:root).
+   ============================================================ */
+
+/* ── Welcome Modal (centralizado, igual à referência) ───────── */
+.tut-welcome-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  background: rgba(0, 0, 0, 0.72);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+.tut-welcome-backdrop.tut-welcome--open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.tut-welcome {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  width: 100%;
+  max-width: 400px;
+  overflow: hidden;
+  transform: scale(0.88) translateY(24px);
+  opacity: 0;
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+              opacity 0.3s ease;
+}
+.tut-welcome-backdrop.tut-welcome--open .tut-welcome {
+  transform: scale(1) translateY(0);
+  opacity: 1;
+}
+
+/* Cabeçalho colorido (fundo vermelho) */
+.tut-welcome-header {
+  background: var(--red);
+  padding: 32px 28px 26px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 10px;
+}
+.tut-welcome-header-icon {
+  color: rgba(255, 255, 255, 0.92);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 4px;
+}
+.tut-welcome-header h2 {
+  font-family: var(--f-display);
+  font-size: 22px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #fff;
+  margin: 0;
+  line-height: 1.1;
+}
+.tut-welcome-header-sub {
+  font-family: var(--f-mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.7);
+  margin: 0;
+}
+
+/* Corpo */
+.tut-welcome-body {
+  padding: 24px 28px 6px;
+  text-align: center;
+}
+.tut-welcome-body p {
+  color: var(--chrome);
+  font-size: 16px;
+  line-height: 1.65;
+  margin: 0;
+}
+.tut-welcome-body p strong {
+  color: var(--red);
+  font-weight: 600;
+}
+
+/* Botões */
+.tut-welcome-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 20px 28px 10px;
+}
+.tut-welcome-start {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 16px 20px;
+  background: var(--red);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-family: var(--f-body);
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+}
+.tut-welcome-start:hover { background: var(--red-deep); transform: translateY(-1px); }
+.tut-welcome-dismiss {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 14px 20px;
+  background: transparent;
+  color: var(--chrome);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  font-family: var(--f-body);
+  font-weight: 600;
+  font-size: 14px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s, background 0.2s;
+}
+.tut-welcome-dismiss:hover { border-color: var(--chrome); background: rgba(255,255,255,0.04); }
+
+/* "Não mostrar novamente" */
+.tut-welcome-never {
+  display: block;
+  text-align: center;
+  padding: 12px 28px 20px;
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-family: var(--f-body);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition: color 0.2s;
+  width: 100%;
+}
+.tut-welcome-never:hover { color: var(--chrome); }
+
+/* ── Spotlight Overlay ───────────────────────────────────── */
+/* O overlay cobre a tela toda. O spotlight é um elemento
+   posicionado absolutamente com box-shadow para criar o recorte */
+.tut-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  pointer-events: none; /* o spotlight e o card têm pointer-events */
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+.tut-overlay.tut--open {
+  opacity: 1;
+}
+
+/* camada de sombra que bloqueia cliques fora do spotlight */
+.tut-overlay-bg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  cursor: default;
+}
+.tut-overlay.tut--open .tut-overlay-bg {
+  pointer-events: auto;
+}
+
+.tut-spotlight {
+  position: absolute;
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.78);
+  border: 2px solid var(--red);
+  border-radius: 8px;
+  pointer-events: none;
+  transition: top 0.45s cubic-bezier(0.4, 0, 0.2, 1),
+              left 0.45s cubic-bezier(0.4, 0, 0.2, 1),
+              width 0.45s cubic-bezier(0.4, 0, 0.2, 1),
+              height 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 301;
+  will-change: top, left, width, height;
+}
+
+/* ── Card flutuante (desktop: fixo; mobile: fixo na base) ─── */
+.tut-card {
+  position: fixed;
+  z-index: 400;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  width: min(340px, calc(100vw - 32px));
+  border-radius: 14px;
+  box-shadow: 0 16px 56px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255,255,255,0.04);
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  opacity: 0;
+  transition: top 0.45s cubic-bezier(0.4, 0, 0.2, 1),
+              left 0.45s cubic-bezier(0.4, 0, 0.2, 1),
+              opacity 0.3s ease;
+  will-change: top, left, opacity;
+}
+.tut-card.tut-card--open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ── Card: cabeçalho ─────────────────────────────────────── */
+.tut-card-head {
+  padding: 14px 16px 12px;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: none;
+}
+.tut-card-step {
+  font-family: var(--f-mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--red);
+  flex: 1;
+  white-space: nowrap;
+}
+.tut-card-close {
+  flex: none;
+  width: 30px;
+  height: 30px;
+  background: none;
+  border: 1px solid var(--line);
+  color: var(--muted);
+  border-radius: 7px;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  font-size: 15px;
+  line-height: 1;
+  transition: border-color 0.2s, color 0.2s;
+}
+.tut-card-close:hover { border-color: var(--chrome); color: var(--chrome); }
+
+/* ── Progress dots ───────────────────────────────────────── */
+.tut-dots {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 10px 16px 6px;
+  flex: none;
+}
+.tut-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--line);
+  transition: background 0.25s, width 0.25s, border-radius 0.25s;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  flex: none;
+}
+.tut-dot.tut-dot--done {
+  background: rgba(224, 20, 30, 0.5);
+}
+.tut-dot.tut-dot--active {
+  background: var(--red);
+  width: 20px;
+  border-radius: 4px;
+}
+
+/* ── Card: corpo ─────────────────────────────────────────── */
+.tut-card-body {
+  padding: 10px 16px 14px;
+  flex: 1;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  min-height: 0;
+  max-height: 200px;
+}
+.tut-card-title {
+  font-family: var(--f-display);
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--chrome);
+  margin: 0 0 10px;
+  line-height: 1.2;
+}
+.tut-card-text {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.tut-phrase {
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--muted);
+  padding: 4px 8px;
+  border-radius: 5px;
+  transition: background 0.25s, color 0.25s;
+}
+.tut-phrase--active {
+  background: rgba(224, 20, 30, 0.13);
+  color: var(--chrome);
+}
+
+/* ── Card: seção de áudio ────────────────────────────────── */
+.tut-card-audio {
+  flex: none;
+  padding: 10px 14px;
+  border-top: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.tut-play-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: var(--red);
+  color: #fff;
+  border: none;
+  border-radius: 7px;
+  font-family: var(--f-body);
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  padding: 0 14px;
+  min-height: 36px;
+  min-width: 100px;
+  cursor: pointer;
+  transition: background 0.2s;
+  flex: none;
+}
+.tut-play-btn:hover { background: var(--red-deep); }
+.tut-play-btn svg { flex: none; }
+
+.tut-audio-opts {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.tut-mute {
+  width: 32px;
+  height: 32px;
+  background: none;
+  border: 1px solid var(--line);
+  color: var(--muted);
+  border-radius: 7px;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  transition: border-color 0.2s, color 0.2s;
+  flex: none;
+}
+.tut-mute:hover,
+.tut-mute[aria-pressed="true"] { border-color: var(--chrome); color: var(--chrome); }
+
+.tut-speed-group {
+  display: flex;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  overflow: hidden;
+}
+.tut-speed-btn {
+  background: none;
+  border: none;
+  border-right: 1px solid var(--line);
+  color: var(--muted);
+  font-family: var(--f-mono);
+  font-size: 11px;
+  padding: 5px 8px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
+  min-height: 32px;
+}
+.tut-speed-btn:last-child { border-right: none; }
+.tut-speed-btn:hover { color: var(--chrome); }
+.tut-speed-btn[aria-pressed="true"] {
+  background: rgba(224, 20, 30, 0.14);
+  color: var(--red);
+}
+
+.tut-auto-label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--f-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  cursor: pointer;
+  user-select: none;
+}
+.tut-auto-label input[type="checkbox"] {
+  width: 14px;
+  height: 14px;
+  accent-color: var(--red);
+  cursor: pointer;
+  margin: 0;
+}
+.tut-auto-label:has(input:checked) { color: var(--chrome); }
+
+/* aviso TTS */
+.tut-tts-notice {
+  font-family: var(--f-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  border: 1px solid var(--line);
+  padding: 4px 8px;
+  border-radius: 5px;
+  margin: 0;
+  width: 100%;
+}
+
+/* ── Card: rodapé (botões de nav) ────────────────────────── */
+.tut-card-footer {
+  flex: none;
+  padding: 10px 14px 14px;
+  border-top: 1px solid var(--line);
+  display: flex;
+  gap: 8px;
+}
+.tut-prev,
+.tut-next {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 11px 12px;
+  background: none;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--muted);
+  font-family: var(--f-body);
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s, background 0.2s;
+  white-space: nowrap;
+}
+.tut-prev:hover,
+.tut-next:hover { border-color: var(--chrome); color: var(--chrome); }
+.tut-prev:disabled { opacity: 0.3; cursor: default; }
+.tut-next--cta {
+  background: var(--red);
+  border-color: var(--red);
+  color: #fff;
+  font-size: 12px;
+}
+.tut-next--cta:hover { background: var(--red-deep); border-color: var(--red-deep); color: #fff; }
+
+/* ── Mobile: card fixo na base ───────────────────────────── */
+@media (max-width: 640px) {
+  .tut-card {
+    /* fixo na base, acima da .mbar */
+    position: fixed !important;
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 70px);
+    left: 8px;
+    right: 8px;
+    top: auto !important;
+    width: auto;
+    max-width: none;
+    border-radius: 16px;
+    transition: opacity 0.3s ease;
+    max-height: calc(100dvh - 200px);
+  }
+  .tut-card-body {
+    max-height: 120px;
+  }
+}
+
+/* ── FAB "▶ Como funciona" ───────────────────────────────── */
+.tut-fab {
+  position: fixed;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 24px);
+  right: 16px;
+  z-index: 200;
+  background: var(--panel);
+  color: var(--chrome);
+  border: 1px solid var(--line);
+  border-radius: 100px;
+  font-family: var(--f-body);
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 12px 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.45);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(12px);
+  transition: opacity 0.3s ease, transform 0.3s ease, background 0.2s, color 0.2s, border-color 0.2s;
+}
+.tut-fab.tut-fab--visible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+.tut-fab:hover {
+  background: var(--red);
+  color: #fff;
+  border-color: var(--red);
+}
+/* acima da .mbar no mobile */
+@media (max-width: 760px) {
+  .tut-fab {
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 80px);
+  }
+}
+
+/* ── Pontos de entrada (triggers existentes no HTML) ─────── */
+
+/* Link "▶ Veja como funciona" no hero */
+.tut-hero-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--f-mono);
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  text-decoration: none;
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  margin-top: 16px;
+  transition: color 0.2s;
+}
+.tut-hero-link:hover,
+.tut-hero-link:focus-visible { color: var(--red); }
+.tut-hero-link svg { flex: none; color: var(--red); }
+.tut-hero-link span { color: var(--muted); }
+
+@media (max-width: 760px) {
+  .tut-hero-link { margin-top: 14px; }
+}
+
+/* Card "Primeira vez?" na seção de dúvidas */
+.tut-faq-card {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 20px;
+  border: 1px solid rgba(224, 20, 30, 0.28);
+  border-radius: 10px;
+  background: rgba(224, 20, 30, 0.05);
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  margin-bottom: 24px;
+  transition: border-color 0.2s, background 0.2s;
+}
+.tut-faq-card:hover,
+.tut-faq-card:focus-visible {
+  border-color: var(--red);
+  background: rgba(224, 20, 30, 0.09);
+}
+.tut-faq-icon {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  background: rgba(224, 20, 30, 0.1);
+  border-radius: 10px;
+  color: var(--red);
+}
+.tut-faq-body { flex: 1; min-width: 0; }
+.tut-faq-body strong {
+  display: block;
+  font-weight: 700;
+  color: var(--chrome);
+  font-size: 15px;
+}
+.tut-faq-body span {
+  display: block;
+  color: var(--muted);
+  font-size: 14px;
+  margin-top: 2px;
+}
+.tut-faq-arrow {
+  flex: none;
+  font-family: var(--f-mono);
+  font-size: 20px;
+  color: var(--red);
+  line-height: 1;
+}
+
+/* ── Tema claro ───────────────────────────────────────────── */
+:root[data-theme="light"] .tut-welcome-backdrop {
+  background: rgba(0, 0, 0, 0.45);
+}
+:root[data-theme="light"] .tut-overlay {
+  /* o spotlight usa box-shadow, não muda cor aqui */
+}
+:root[data-theme="light"] .tut-spotlight {
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.55);
+}
+:root[data-theme="light"] .tut-phrase--active {
+  background: rgba(224, 20, 30, 0.1);
+}
+:root[data-theme="light"] .tut-faq-card {
+  background: rgba(224, 20, 30, 0.04);
+}
+
+/* ── Movimento reduzido ───────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .tut-welcome,
+  .tut-welcome-backdrop,
+  .tut-overlay,
+  .tut-spotlight,
+  .tut-card,
+  .tut-fab,
+  .tut-phrase,
+  .tut-dot {
+    transition: none !important;
+    animation: none !important;
+  }
+  .tut-welcome-backdrop { opacity: 1; pointer-events: none; }
+  .tut-welcome-backdrop.tut-welcome--open { pointer-events: auto; }
+  .tut-welcome { transform: none !important; opacity: 1 !important; }
+  .tut-welcome-backdrop.tut-welcome--open .tut-welcome { opacity: 1; transform: none !important; }
+  .tut-overlay { opacity: 1; }
+  .tut-card.tut-card--open { opacity: 1; }
+  .tut-fab { transform: none !important; }
+}
