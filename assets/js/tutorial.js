@@ -625,10 +625,7 @@
     s.triggerEl = triggerEl || s.triggerEl || null;
     s.step      = typeof startStep === 'number' ? startStep : 0;
 
-    // Adiciona classe tour-active e trava scroll
     document.body.classList.add('tour-active');
-    document.body.style.overflow = 'hidden';
-    // Salva posição para restaurar depois
     s.scrollY = window.scrollY;
 
     tutOverlay.removeAttribute('aria-hidden');
@@ -654,11 +651,8 @@
     tutOverlay.setAttribute('aria-hidden', 'true');
     tutCard.classList.remove('tut-card--open');
 
-    // Remove classe tour-active e restaura scroll
     document.body.classList.remove('tour-active');
-    document.body.style.overflow = '';
-    // Restaura scroll position
-    window.scrollTo(0, s.scrollY || 0);
+    window.scrollTo({ top: s.scrollY || 0, behavior: 'instant' });
 
     if (s.triggerEl && s.triggerEl.focus) {
       setTimeout(function () { s.triggerEl.focus(); }, 300);

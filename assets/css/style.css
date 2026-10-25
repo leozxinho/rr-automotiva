@@ -191,8 +191,9 @@ input[type=text]:focus,textarea:focus{outline:none;border-color:var(--red)}
 .pf-tabs i{width:33%;height:2px;background:var(--chrome);margin-top:-1px}
 
 /* ig-grid (substitui .phone) */
-.ig-grid{display:grid;gap:var(--sp-3)}
-.ig-grid .tiles{border-radius:var(--r-card);overflow:hidden}
+.ig-grid{display:grid;gap:var(--sp-3);justify-self:center;width:100%;max-width:300px}
+.ig-grid .tiles{border-radius:var(--r-card);overflow:hidden;margin:0}
+.ig-grid .tile em{font-size:var(--fs-xs)}
 
 .tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;margin:0 -12px -12px}
 .tile{position:relative;aspect-ratio:1;overflow:hidden}
