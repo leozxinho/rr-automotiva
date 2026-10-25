@@ -28,7 +28,8 @@
     activePhrase: -1,
     triggerEl:    null,
     rotating:     false,    // true enquanto o carrossel está animando
-    scrollY:      0         // posição de scroll antes de abrir o tour
+    scrollY:      0,        // posição de scroll antes de abrir o tour
+    audioStep:    -1        // índice da etapa sendo narrada (-1 = nenhuma)
   };
 
   /* ── Preferências ──────────────────────────────────────── */
@@ -68,6 +69,18 @@
   var SVG_VOL   = '<svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M4 8v4h3l4 4V4L7 8H4z"/><path d="M13 7.5a4 4 0 0 1 0 5M16 5a7 7 0 0 1 0 10"/></svg>';
   var SVG_MUTE  = '<svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M4 8v4h3l4 4V4L7 8H4z"/><line x1="14" y1="7" x2="18" y2="13"/><line x1="18" y1="7" x2="14" y2="13"/></svg>';
   var SVG_PLAY_ICON = '<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>';
+
+  /* ── iOS: desbloqueio síncrono da speechSynthesis ──────── */
+  function iosUnlock() {
+    if (!window.speechSynthesis) return;
+    window.speechSynthesis.cancel();
+    // Usa a primeira frase real para que iOS aceite a fala — volume baixo
+    var utt = new SpeechSynthesisUtterance(STEPS[0].phrases[0]);
+    utt.lang  = 'pt-BR';
+    utt.voice = getBestVoice();   // getBestVoice está mais abaixo; é chamada depois do buildDOM
+    utt.volume = 0.01;            // quase mudo — só destrava o engine
+    window.speechSynthesis.speak(utt);
+  }
 
   /* ── DOM refs ──────────────────────────────────────────── */
   var welcomeBackdrop, welcomeCard, welcomeStartBtn, welcomeDismissBtn, welcomeNeverBtn;
@@ -232,30 +245,30 @@
   }
 
   /* ── Renderizar etapa ──────────────────────────────────── */
-  function renderStep(idx) {
-    var step = STEPS[idx];
-    var n    = idx + 1;
+  var CONTENT_OUT_MS = 160;
+  var CONTENT_IN_MS  = 200;
 
+  function renderStep(idx) {
+    var step    = STEPS[idx];
+    var n       = idx + 1;
+    var isFirst = !tutCard.classList.contains('tut-card--open');
+    var cBody   = document.getElementById('tut-card-body');
+
+    /* ── (a) conteúdo do balão sai imediatamente ─────────── */
+    if (cBody && !isFirst) {
+      cBody.classList.remove('tut-card-body--in');
+      cBody.classList.add('tut-card-body--out');
+    }
+
+    /* ── Atualiza rótulos e dots (não visível ainda) ──────── */
     cardStepLabel.textContent = 'Etapa ' + n + ' de ' + TOTAL;
 
-    /* dots */
     var dots = cardDots.querySelectorAll('.tut-dot');
     dots.forEach(function (d, i) {
       d.classList.toggle('tut-dot--active', i === idx);
       d.classList.toggle('tut-dot--done',   i < idx);
     });
 
-    cardTitle.textContent = step.title;
-
-    /* frases */
-    cardText.innerHTML = '';
-    step.phrases.forEach(function (phrase, i) {
-      var span = el('span', { class: 'tut-phrase', id: 'tut-p-' + i });
-      span.textContent = phrase;
-      cardText.appendChild(span);
-    });
-
-    /* botão próxima / CTA */
     if (idx === TOTAL - 1) {
       nextBtn.textContent = 'Montar meu orçamento';
       nextBtn.classList.add('tut-next--cta');
@@ -263,50 +276,92 @@
       nextBtn.textContent = 'Próxima ›';
       nextBtn.classList.remove('tut-next--cta');
     }
-    prevBtn.hidden = (idx === 0);
     nextBtn.disabled = false;
+    prevBtn.hidden = (idx === 0);
     if (cardFooter) {
       if (idx === 0) cardFooter.setAttribute('data-first', '');
-      else cardFooter.removeAttribute('data-first');
+      else           cardFooter.removeAttribute('data-first');
     }
 
-    /* reposiciona spotlight */
-    captions.clear();
-    audio.stop();
-    setPlayState(false);
-    ttsNotice.hidden = true;
-    audio.load(idx);
+    /* ── (b) após content-out: atualiza texto, scroll, spotlight ─ */
+    var updateContent = function () {
+      if (!s.open) return;
 
-    /* scroll corpo ao topo */
-    var bodyEl = document.getElementById('tut-card-body');
-    if (bodyEl) bodyEl.scrollTop = 0;
+      cardTitle.textContent = step.title;
 
-    var doScroll = function () {
-      scrollToTarget(idx, function () {
+      cardText.innerHTML = '';
+      step.phrases.forEach(function (phrase, i) {
+        var span = el('span', { class: 'tut-phrase', id: 'tut-p-' + i });
+        span.textContent = phrase;
+        cardText.appendChild(span);
+      });
+
+      /* scroll corpo ao topo */
+      if (cBody) cBody.scrollTop = 0;
+
+      captions.clear();
+      /* para narração da etapa anterior */
+      audio.stop();
+      setPlayState(false);
+      ttsNotice.hidden = true;
+      audio.load(idx);
+
+      var doFinish = function () {
         if (!s.open) return;
+
         positionSpotlight(idx);
         positionCard(idx);
-        tutSpotlight.classList.remove('tut-spotlight--dim');
+
         if (!tutOverlay.classList.contains('tut--open')) {
           tutOverlay.classList.add('tut--open');
         }
         tutCard.classList.add('tut-card--open');
-      });
+
+        /* ── (d) conteúdo entra ─────────────────────────────── */
+        if (cBody) {
+          cBody.classList.remove('tut-card-body--out');
+          cBody.classList.add('tut-card-body--in');
+          setTimeout(function () {
+            if (cBody) cBody.classList.remove('tut-card-body--in');
+          }, CONTENT_IN_MS + 50);
+        }
+
+        /* ── auto-narração ──────────────────────────────────── */
+        if (!s.muted && s.audioStep !== idx) {
+          audio.play();
+          setPlayState(true);
+        }
+      };
+
+      /* ── (b+c) scroll + carrossel ───────────────────────── */
+      var doScroll = function () {
+        scrollToTarget(idx, function () {
+          if (!s.open) return;
+          positionSpotlight(idx);
+          doFinish();
+        });
+      };
+
+      if (typeof step.carouselIndex === 'number') {
+        s.rotating = true;
+        /* sem dim — spotlight fica na posição antiga enquanto carrossel gira */
+        var spinDots = document.querySelectorAll('.spin-dot');
+        if (spinDots[step.carouselIndex]) {
+          spinDots[step.carouselIndex].click();
+        }
+        setTimeout(function () {
+          s.rotating = false;
+          doScroll();
+        }, REDUCED ? 0 : 750);
+      } else {
+        doScroll();
+      }
     };
 
-    if (typeof step.carouselIndex === 'number') {
-      s.rotating = true;
-      tutSpotlight.classList.add('tut-spotlight--dim');
-      var spinDots = document.querySelectorAll('.spin-dot');
-      if (spinDots[step.carouselIndex]) {
-        spinDots[step.carouselIndex].click();
-      }
-      setTimeout(function () {
-        s.rotating = false;
-        doScroll();
-      }, REDUCED ? 0 : 750);
+    if (isFirst) {
+      updateContent();
     } else {
-      doScroll();
+      setTimeout(updateContent, CONTENT_OUT_MS);
     }
   }
 
@@ -467,8 +522,7 @@
   }
   function stopChromeWorkaround() { clearInterval(_chromeTimer); }
 
-  var _ttsIndex   = 0;
-  var _ttsAborted = false;
+  var speechId = 0;   // incrementa a cada nova sessão de fala; onend/onerror ignoram ids stale
 
   var audio = {
     load: function (idx) {
@@ -478,7 +532,6 @@
       audioEl.muted        = s.muted;
       audioEl.playbackRate = s.speed;
       s.mode = 'idle';
-      /* preload próxima etapa */
       if (idx + 1 < TOTAL && STEPS[idx + 1].audio) {
         var nx = new Audio();
         nx.preload = 'metadata';
@@ -487,28 +540,29 @@
     },
     play: function () {
       var step = STEPS[s.step];
-      if (s.mode === 'tts') { this._startTTS(step); return; }
-      if (!audioEl.src || audioEl.error) { this._startTTS(step); return; }
+      if (s.mode === 'tts') { this._startTTS(step, s.step); return; }
+      if (!audioEl.src || audioEl.error) { this._startTTS(step, s.step); return; }
       var self = this;
       var p = audioEl.play();
-      if (p && p.catch) { p.catch(function () { self._startTTS(step); }); }
+      if (p && p.catch) { p.catch(function () { self._startTTS(step, s.step); }); }
     },
     pause: function () {
       if (s.mode === 'audio') {
         audioEl.pause();
       } else if (s.mode === 'tts') {
-        _ttsAborted = true;
+        speechId++;   // invalida onend/onerror futuros
         stopChromeWorkaround();
         if (window.speechSynthesis) window.speechSynthesis.cancel();
       }
     },
     stop: function () {
-      _ttsAborted = true;
+      speechId++;   // invalida qualquer sessão de fala em curso
       stopChromeWorkaround();
       if (window.speechSynthesis) window.speechSynthesis.cancel();
       try { audioEl.pause(); audioEl.currentTime = 0; } catch (e) {}
-      s.mode    = 'idle';
-      s.playing = false;
+      s.mode      = 'idle';
+      s.playing   = false;
+      s.audioStep = -1;
     },
     setMuted: function (m) {
       audioEl.muted = m;
@@ -517,45 +571,60 @@
     setSpeed: function (r) {
       audioEl.playbackRate = r;
     },
-    _startTTS: function (step) {
-      if (!window.speechSynthesis) { s.mode = 'none'; setPlayState(false); return; }
+    _startTTS: function (step, stepIdx) {
+      if (!window.speechSynthesis) {
+        s.mode = 'none';
+        ttsNotice.textContent = 'Áudio indisponível neste navegador';
+        ttsNotice.hidden = false;
+        setPlayState(false);
+        return;
+      }
       if (s.muted) return;
-      ttsNotice.hidden = false;
+      window.speechSynthesis.cancel();
+      speechId++;
+      var myId = speechId;
+      s.audioStep = stepIdx;
       s.mode      = 'tts';
-      _ttsIndex   = 0;
-      _ttsAborted = false;
+      ttsNotice.hidden = true;
       startChromeWorkaround();
-      this._speakPhrase(step.phrases);
+      this._speakPhrase(step.phrases, myId, 0);
     },
-    _speakPhrase: function (phrases) {
-      if (_ttsAborted || _ttsIndex >= phrases.length) {
+    _speakPhrase: function (phrases, id, index) {
+      if (id !== speechId) return;            // sessão cancelada
+      if (index >= phrases.length) {
         stopChromeWorkaround();
         setPlayState(false);
         captions.clear();
-        if (!_ttsAborted && s.auto) {
+        s.audioStep = -1;
+        if (s.auto && s.open) {
           setTimeout(function () { goToStep(s.step + 1); }, 1000);
         }
         return;
       }
-      var i   = _ttsIndex;
+      var i   = index;
       var utt = new SpeechSynthesisUtterance(phrases[i]);
       utt.lang  = 'pt-BR';
       utt.rate  = s.speed * 0.92;
       utt.pitch = 1.0;
       utt.voice = getBestVoice();
-      utt.onstart = function () { if (!_ttsAborted) captions.set(i); };
       var self = this;
-      utt.onend = function () {
-        if (_ttsAborted) return;
-        _ttsIndex++;
-        setTimeout(function () { self._speakPhrase(phrases); }, 400);
+      utt.onstart = function () {
+        if (id !== speechId) return;
+        captions.set(i);
       };
-      utt.onerror = function () {
-        _ttsAborted = true;
+      utt.onend = function () {
+        if (id !== speechId) return;
+        setTimeout(function () { self._speakPhrase(phrases, id, i + 1); }, 400);
+      };
+      utt.onerror = function (e) {
+        if (id !== speechId) return;
+        if (e.error === 'interrupted' || e.error === 'canceled') return;  // ignorar
         stopChromeWorkaround();
         setPlayState(false);
+        s.audioStep = -1;
         s.mode = 'none';
-        ttsNotice.hidden = true;
+        ttsNotice.textContent = 'Áudio indisponível neste navegador';
+        ttsNotice.hidden = false;
       };
       window.speechSynthesis.speak(utt);
     }
@@ -600,6 +669,12 @@
       if (found) return found;
     }
     return ptBR[0] || null;
+  }
+
+  if (window.speechSynthesis) {
+    window.speechSynthesis.addEventListener('voiceschanged', function () {
+      /* re-seleciona voz quando lista atualizar (Android carrega assíncrono) */
+    });
   }
 
   function setPlayState(playing) {
@@ -819,6 +894,7 @@
   function bindEvents() {
     /* welcome */
     welcomeStartBtn.addEventListener('click', function () {
+      iosUnlock();           // desbloqueio síncrono iOS — DEVE ser antes de qualquer setTimeout
       closeWelcome();
       setTimeout(function () { openTutorial(s.triggerEl, 0); }, 350);
     });
@@ -889,6 +965,7 @@
     document.querySelectorAll('.js-tut').forEach(function (trigger) {
       trigger.addEventListener('click', function (e) {
         e.preventDefault();
+        iosUnlock();          // desbloqueio síncrono iOS — DEVE ser antes de qualquer setTimeout
         openTutorial(trigger, 0);
       });
     });
@@ -901,6 +978,19 @@
     });
   }
 
+  /* ── Auto-open modal após 1,5s ──────────────────────────── */
+  function maybeAutoOpen() {
+    try {
+      if (localStorage.getItem('rr_tut_never') === '1') return;
+      if (sessionStorage.getItem('rr_tut_seen') === '1') return;
+    } catch (e) {}
+    setTimeout(function () {
+      if (s.open) return;
+      try { sessionStorage.setItem('rr_tut_seen', '1'); } catch (e) {}
+      openWelcome(null);
+    }, 1500);
+  }
+
   /* ── Init ──────────────────────────────────────────────── */
   loadPrefs();
   buildDOM();
@@ -908,7 +998,7 @@
   initFocusTrap();
   bindEvents();
   initTriggers();
+  maybeAutoOpen();
   setPlayState(false);
-  /* autoOpen() removido — tour inicia apenas pelos gatilhos .js-tut */
 
 })();

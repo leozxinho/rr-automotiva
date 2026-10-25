@@ -40,6 +40,24 @@
   opacity: 1;
 }
 
+/* ── Mobile: welcome como bottom sheet ─────────────────── */
+@media (max-width: 600px) {
+  .tut-welcome-backdrop {
+    align-items: flex-end;
+    padding: 0;
+  }
+  .tut-welcome {
+    width: 100%;
+    max-width: none;
+    border-radius: 20px 20px 0 0;
+    transform: translateY(100%);
+    opacity: 1;
+  }
+  .tut-welcome-backdrop.tut-welcome--open .tut-welcome {
+    transform: translateY(0);
+  }
+}
+
 /* Cabeçalho colorido (fundo vermelho) */
 .tut-welcome-header {
   background: var(--red);
@@ -207,14 +225,11 @@ body.tour-active .spin-hint svg {
   transition: top var(--dur-base, 320ms) var(--ease, ease),
               left var(--dur-base, 320ms) var(--ease, ease),
               width var(--dur-base, 320ms) var(--ease, ease),
-              height var(--dur-base, 320ms) var(--ease, ease),
-              opacity 0.25s ease;
+              height var(--dur-base, 320ms) var(--ease, ease);
   z-index: 301;
   will-change: top, left, width, height;
 }
-.tut-spotlight--dim {
-  opacity: 0 !important;
-}
+/* tut-spotlight--dim removido — spotlight não pisca mais entre etapas */
 
 /* ── Card flutuante (desktop: fixo; mobile: fixo na base) ─── */
 .tut-card {
@@ -782,13 +797,27 @@ body.tour-active .spin-hint svg {
   background: rgba(224, 20, 30, 0.04);
 }
 
+/* ── Transições de conteúdo do balão ────────────────────── */
+@keyframes tut-content-out {
+  to { opacity: 0; transform: translateY(-6px); }
+}
+@keyframes tut-content-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.tut-card-body--out {
+  animation: tut-content-out 160ms var(--ease, ease) both;
+}
+.tut-card-body--in {
+  animation: tut-content-in 200ms var(--ease, ease) both;
+}
+
 /* ── Movimento reduzido ───────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   .tut-welcome,
   .tut-welcome-backdrop,
   .tut-overlay,
   .tut-spotlight,
-  .tut-spotlight--dim,
   .tut-card,
   .tut-fab,
   .tut-phrase,
