@@ -16,7 +16,7 @@
   padding: 24px;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.3s ease;
+  transition: opacity var(--dur-base, 320ms) var(--ease, ease);
 }
 .tut-welcome-backdrop.tut-welcome--open {
   opacity: 1;
@@ -33,7 +33,7 @@
   transform: scale(0.88) translateY(24px);
   opacity: 0;
   transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
-              opacity 0.3s ease;
+              opacity var(--dur-base, 320ms) var(--ease, ease);
 }
 .tut-welcome-backdrop.tut-welcome--open .tut-welcome {
   transform: scale(1) translateY(0);
@@ -70,7 +70,7 @@
 .tut-welcome-header-sub {
   font-family: var(--f-mono);
   font-size: 11px;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: rgba(255, 255, 255, 0.7);
   margin: 0;
@@ -116,7 +116,7 @@
   letter-spacing: 0.08em;
   text-transform: uppercase;
   cursor: pointer;
-  transition: background 0.2s, transform 0.15s;
+  transition: background var(--dur-fast, 180ms) var(--ease, ease), transform var(--dur-fast, 180ms) var(--ease, ease);
 }
 .tut-welcome-start:hover { background: var(--red-deep); transform: translateY(-1px); }
 .tut-welcome-dismiss {
@@ -135,7 +135,7 @@
   letter-spacing: 0.06em;
   text-transform: uppercase;
   cursor: pointer;
-  transition: border-color 0.2s, color 0.2s, background 0.2s;
+  transition: border-color var(--dur-fast, 180ms) var(--ease, ease), color var(--dur-fast, 180ms) var(--ease, ease), background var(--dur-fast, 180ms) var(--ease, ease);
 }
 .tut-welcome-dismiss:hover { border-color: var(--chrome); background: rgba(255,255,255,0.04); }
 
@@ -151,24 +151,43 @@
   font-size: 12px;
   letter-spacing: 0.06em;
   cursor: pointer;
-  transition: color 0.2s;
+  transition: color var(--dur-fast, 180ms) var(--ease, ease);
   width: 100%;
 }
 .tut-welcome-never:hover { color: var(--chrome); }
 
+/* ── Modo foco durante o tour ─────────────────────────────── */
+body.tour-active header,
+body.tour-active .mbar,
+body.tour-active .ticker,
+body.tour-active .tut-fab {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--dur-base, 320ms) var(--ease, ease);
+}
+
+/* Pausa animações de fundo */
+body.tour-active .ticker-track,
+body.tour-active .logo-plate::after,
+body.tour-active .spin-hint svg {
+  animation-play-state: paused;
+}
+
 /* ── Spotlight Overlay ───────────────────────────────────── */
-/* O overlay cobre a tela toda. O spotlight é um elemento
-   posicionado absolutamente com box-shadow para criar o recorte */
 .tut-overlay {
   position: fixed;
   inset: 0;
   z-index: 300;
-  pointer-events: none; /* o spotlight e o card têm pointer-events */
+  pointer-events: none;
   opacity: 0;
-  transition: opacity 0.35s ease;
+  transition: opacity var(--dur-base, 320ms) var(--ease, ease);
+  backdrop-filter: blur(0px);
+  -webkit-backdrop-filter: blur(0px);
 }
 .tut-overlay.tut--open {
   opacity: 1;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
 }
 
 /* camada de sombra que bloqueia cliques fora do spotlight */
@@ -184,14 +203,14 @@
 
 .tut-spotlight {
   position: absolute;
-  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.78);
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.75);
   border: 2px solid var(--red);
-  border-radius: 8px;
+  border-radius: var(--r-card, 12px);
   pointer-events: none;
-  transition: top 0.45s cubic-bezier(0.4, 0, 0.2, 1),
-              left 0.45s cubic-bezier(0.4, 0, 0.2, 1),
-              width 0.45s cubic-bezier(0.4, 0, 0.2, 1),
-              height 0.45s cubic-bezier(0.4, 0, 0.2, 1),
+  transition: top var(--dur-base, 320ms) var(--ease, ease),
+              left var(--dur-base, 320ms) var(--ease, ease),
+              width var(--dur-base, 320ms) var(--ease, ease),
+              height var(--dur-base, 320ms) var(--ease, ease),
               opacity 0.25s ease;
   z-index: 301;
   will-change: top, left, width, height;
@@ -207,16 +226,16 @@
   background: var(--panel);
   border: 1px solid var(--line);
   width: min(340px, calc(100vw - 32px));
-  border-radius: 14px;
+  border-radius: var(--r-card, 12px);
   box-shadow: 0 16px 56px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255,255,255,0.04);
   pointer-events: none;
   display: flex;
   flex-direction: column;
   overflow: hidden;
   opacity: 0;
-  transition: top 0.45s cubic-bezier(0.4, 0, 0.2, 1),
-              left 0.45s cubic-bezier(0.4, 0, 0.2, 1),
-              opacity 0.3s ease;
+  transition: top var(--dur-base, 320ms) var(--ease, ease),
+              left var(--dur-base, 320ms) var(--ease, ease),
+              opacity var(--dur-base, 320ms) var(--ease, ease);
   will-change: top, left, opacity;
 }
 .tut-card.tut-card--open {
@@ -236,7 +255,7 @@
 .tut-card-step {
   font-family: var(--f-mono);
   font-size: 11px;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--red);
   flex: 1;
@@ -256,7 +275,7 @@
   padding: 0;
   font-size: 15px;
   line-height: 1;
-  transition: border-color 0.2s, color 0.2s;
+  transition: border-color var(--dur-fast, 180ms) var(--ease, ease), color var(--dur-fast, 180ms) var(--ease, ease);
 }
 .tut-card-close:hover { border-color: var(--chrome); color: var(--chrome); }
 
@@ -273,7 +292,7 @@
   height: 8px;
   border-radius: 50%;
   background: var(--line);
-  transition: background 0.25s, width 0.25s, border-radius 0.25s;
+  transition: background var(--dur-fast, 180ms) var(--ease, ease), width var(--dur-fast, 180ms) var(--ease, ease), border-radius var(--dur-fast, 180ms) var(--ease, ease);
   border: none;
   padding: 0;
   cursor: pointer;
@@ -318,7 +337,7 @@
   color: var(--muted);
   padding: 4px 8px;
   border-radius: 5px;
-  transition: background 0.25s, color 0.25s;
+  transition: background var(--dur-fast, 180ms) var(--ease, ease), color var(--dur-fast, 180ms) var(--ease, ease);
 }
 .tut-phrase--active {
   background: rgba(224, 20, 30, 0.13);
@@ -346,13 +365,13 @@
   font-family: var(--f-body);
   font-weight: 700;
   font-size: 12px;
-  letter-spacing: 0.09em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   padding: 0 14px;
   min-height: 36px;
   min-width: 100px;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: background var(--dur-fast, 180ms) var(--ease, ease);
   flex: none;
 }
 .tut-play-btn:hover { background: var(--red-deep); }
@@ -375,7 +394,7 @@
   display: grid;
   place-items: center;
   padding: 0;
-  transition: border-color 0.2s, color 0.2s;
+  transition: border-color var(--dur-fast, 180ms) var(--ease, ease), color var(--dur-fast, 180ms) var(--ease, ease);
   flex: none;
 }
 .tut-mute:hover,
@@ -396,7 +415,7 @@
   font-size: 11px;
   padding: 5px 8px;
   cursor: pointer;
-  transition: background 0.15s, color 0.15s;
+  transition: background var(--dur-fast, 180ms) var(--ease, ease), color var(--dur-fast, 180ms) var(--ease, ease);
   white-space: nowrap;
   min-height: 32px;
 }
@@ -432,7 +451,7 @@
 .tut-tts-notice {
   font-family: var(--f-mono);
   font-size: 10px;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.08em;
   color: var(--muted);
   border: 1px solid var(--line);
   padding: 4px 8px;
@@ -467,7 +486,7 @@
   letter-spacing: 0.06em;
   text-transform: uppercase;
   cursor: pointer;
-  transition: border-color 0.2s, color 0.2s, background 0.2s;
+  transition: border-color var(--dur-fast, 180ms) var(--ease, ease), color var(--dur-fast, 180ms) var(--ease, ease), background var(--dur-fast, 180ms) var(--ease, ease);
   white-space: nowrap;
 }
 .tut-prev:hover,
@@ -493,7 +512,7 @@
     width: auto;
     max-width: none;
     border-radius: 16px;
-    transition: opacity 0.3s ease;
+    transition: opacity var(--dur-base, 320ms) var(--ease, ease);
     box-shadow: 0 -2px 0 0 var(--red), 0 8px 32px rgba(0,0,0,0.55);
   }
 
@@ -503,7 +522,7 @@
   }
   .tut-card-step {
     font-size: 10px;
-    letter-spacing: 0.12em;
+    letter-spacing: 0.08em;
   }
   .tut-card-close {
     width: 26px;
@@ -524,7 +543,7 @@
     width: auto;
     border-radius: 2px;
     cursor: pointer;
-    transition: background 0.3s;
+    transition: background var(--dur-base, 320ms) var(--ease, ease);
   }
 
   /* Corpo: sem scroll, fonte compacta */
@@ -607,7 +626,7 @@
   font-family: var(--f-body);
   font-weight: 700;
   font-size: 13px;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   padding: 12px 20px;
   cursor: pointer;
@@ -619,7 +638,7 @@
   opacity: 0;
   pointer-events: none;
   transform: translateY(12px);
-  transition: opacity 0.3s ease, transform 0.3s ease, background 0.2s, color 0.2s, border-color 0.2s;
+  transition: opacity var(--dur-base, 320ms) var(--ease, ease), transform var(--dur-base, 320ms) var(--ease, ease), background var(--dur-fast, 180ms) var(--ease, ease), color var(--dur-fast, 180ms) var(--ease, ease), border-color var(--dur-fast, 180ms) var(--ease, ease);
 }
 .tut-fab.tut-fab--visible {
   opacity: 1;
@@ -647,7 +666,7 @@
   gap: 8px;
   font-family: var(--f-mono);
   font-size: 12px;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--muted);
   text-decoration: none;
@@ -656,7 +675,7 @@
   padding: 0;
   cursor: pointer;
   margin-top: 16px;
-  transition: color 0.2s;
+  transition: color var(--dur-fast, 180ms) var(--ease, ease);
 }
 .tut-hero-link:hover,
 .tut-hero-link:focus-visible { color: var(--red); }
@@ -682,7 +701,7 @@
   font: inherit;
   color: inherit;
   margin-bottom: 24px;
-  transition: border-color 0.2s, background 0.2s;
+  transition: border-color var(--dur-fast, 180ms) var(--ease, ease), background var(--dur-fast, 180ms) var(--ease, ease);
 }
 .tut-faq-card:hover,
 .tut-faq-card:focus-visible {
@@ -758,4 +777,10 @@
   .tut-overlay { opacity: 1; }
   .tut-card.tut-card--open { opacity: 1; }
   .tut-fab { transform: none !important; }
+  body.tour-active header,
+  body.tour-active .mbar,
+  body.tour-active .ticker,
+  body.tour-active .tut-fab {
+    transition: none !important;
+  }
 }

@@ -27,7 +27,8 @@
     mode:         'idle',   // 'idle' | 'audio' | 'tts' | 'none'
     activePhrase: -1,
     triggerEl:    null,
-    rotating:     false    // true enquanto o carrossel está animando
+    rotating:     false,    // true enquanto o carrossel está animando
+    scrollY:      0         // posição de scroll antes de abrir o tour
   };
 
   /* ── Preferências ──────────────────────────────────────── */
@@ -138,7 +139,7 @@
       class: 'tut-card',
       role: 'dialog',
       'aria-modal': 'true',
-      'aria-label': 'Tutorial: Como funciona',
+      'aria-label': 'Tour guiado',
       tabindex: '-1'
     });
 
@@ -624,8 +625,13 @@
     s.triggerEl = triggerEl || s.triggerEl || null;
     s.step      = typeof startStep === 'number' ? startStep : 0;
 
+    // Adiciona classe tour-active e trava scroll
+    document.body.classList.add('tour-active');
+    document.body.style.overflow = 'hidden';
+    // Salva posição para restaurar depois
+    s.scrollY = window.scrollY;
+
     tutOverlay.removeAttribute('aria-hidden');
-    document.body.style.overflow = '';  /* deixa o scroll livre para navegar */
 
     hideFab();
     updateMuteBtn();
@@ -647,6 +653,13 @@
     tutOverlay.classList.remove('tut--open');
     tutOverlay.setAttribute('aria-hidden', 'true');
     tutCard.classList.remove('tut-card--open');
+
+    // Remove classe tour-active e restaura scroll
+    document.body.classList.remove('tour-active');
+    document.body.style.overflow = '';
+    // Restaura scroll position
+    window.scrollTo(0, s.scrollY || 0);
+
     if (s.triggerEl && s.triggerEl.focus) {
       setTimeout(function () { s.triggerEl.focus(); }, 300);
     }
@@ -699,15 +712,21 @@
 
     tutCard.addEventListener('keydown', function (e) {
       if (!s.open) return;
-      if (e.key === 'Escape')      { closeTutorial(); return; }
-      if (e.key === 'ArrowRight' || (e.key === 'Enter' && document.activeElement === tutCard)) {
+      if (e.key === 'Escape') { closeTutorial(); return; }
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
         if (document.activeElement === nextBtn || document.activeElement === prevBtn) return;
+        e.preventDefault();
         goToStep(s.step + 1);
         return;
       }
-      if (e.key === 'ArrowLeft') {
+      if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
         if (document.activeElement === nextBtn || document.activeElement === prevBtn) return;
+        e.preventDefault();
         goToStep(s.step - 1);
+        return;
+      }
+      if (e.key === 'Enter' && document.activeElement === tutCard) {
+        goToStep(s.step + 1);
         return;
       }
       trapFocus(tutCard, e);
@@ -835,25 +854,6 @@
     });
   }
 
-  /* ── Auto-abertura em cada nova visita ────────────────────── */
-  function autoOpen() {
-    /* "Não mostrar novamente" foi clicado → nunca mais abre */
-    try { if (localStorage.getItem('rr_tut_never')) return; } catch (e) {}
-    /* ?retut na URL força a exibição (útil para testes) */
-    var forced = /[?&]retut/.test(location.search);
-    if (!forced) {
-      /* sessionStorage: mostra uma vez por aba; abre nova aba → mostra de novo */
-      try { if (sessionStorage.getItem('rr_tut_seen')) return; } catch (e) {}
-    }
-    /* splash dura 2100ms + 700ms de fade → aguarda 3000ms para abrir */
-    var delay = REDUCED ? 600 : 3000;
-    setTimeout(function () {
-      if (s.open || welcomeBackdrop.classList.contains('tut-welcome--open')) return;
-      try { sessionStorage.setItem('rr_tut_seen', '1'); } catch (e) {}
-      openWelcome(null);
-    }, delay);
-  }
-
   /* ── Init ──────────────────────────────────────────────── */
   loadPrefs();
   buildDOM();
@@ -862,6 +862,6 @@
   bindEvents();
   initTriggers();
   setPlayState(false);
-  autoOpen();
+  /* autoOpen() removido — tour inicia apenas pelos gatilhos .js-tut */
 
 })();

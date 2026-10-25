@@ -51,7 +51,7 @@ SERVICOS.forEach(s=>{
   }
 
   let radius = getRadius();
-  let current = 0;
+  let cur = 0;
 
   wrap.className = "spin-wrap";
   wrap.setAttribute("aria-roledescription","carrossel");
@@ -88,33 +88,57 @@ SERVICOS.forEach(s=>{
   });
 
   const dotsEl = document.getElementById("spin-dots");
+  const dots = [];
   SERVICOS.forEach((s, i) => {
     const d = document.createElement("button");
     d.type="button"; d.className="spin-dot"; d.setAttribute("aria-label", s.nome);
     d.addEventListener("click", () => rotateTo(i));
     dotsEl.appendChild(d);
+    dots.push(d);
   });
 
-  function rotateTo(i, instant){
-    current = ((i % N) + N) % N;
-    if(instant) ring.style.transition = "none";
-    ring.style.transform = `rotateY(${-current * DEG}deg)`;
-    if(instant) requestAnimationFrame(() => { ring.style.transition = ""; });
-    document.querySelectorAll(".spin-card").forEach((c, idx) => c.dataset.active = idx === current ? "true" : "false");
-    document.querySelectorAll(".spin-dot").forEach((d, idx) => d.classList.toggle("active", idx === current));
-    document.querySelectorAll(".feat-chip").forEach(c => c.classList.toggle("active", +c.dataset.serviceIndex === current));
-    const live=document.getElementById("spin-live"); if(live&&!instant) live.textContent=SERVICOS[current].nome;
+  function updateFeat(idx) {
+    document.querySelectorAll(".feat-chip").forEach(c => c.classList.toggle("active", +c.dataset.serviceIndex === idx));
   }
 
-  document.getElementById("spin-prev").addEventListener("click", () => rotateTo(current - 1));
-  document.getElementById("spin-next").addEventListener("click", () => rotateTo(current + 1));
+  function rotateTo(i, instant){
+    // No mobile, scroll em vez de rotação 3D
+    if (window.innerWidth <= 760) {
+      var cards = Array.from(ring.querySelectorAll('.spin-card'));
+      if (cards[i]) {
+        cards[i].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+        cards.forEach(function(c, idx) {
+          c.dataset.active = idx === i ? 'true' : 'false';
+        });
+        dots.forEach(function(d, idx) {
+          d.classList.toggle('active', idx === i);
+        });
+        cur = i;
+        updateFeat(i);
+        const live=document.getElementById("spin-live"); if(live&&!instant) live.textContent=SERVICOS[cur].nome;
+      }
+      return; // não executa rotação 3D
+    }
+
+    cur = ((i % N) + N) % N;
+    if(instant) ring.style.transition = "none";
+    ring.style.transform = `rotateY(${-cur * DEG}deg)`;
+    if(instant) requestAnimationFrame(() => { ring.style.transition = ""; });
+    document.querySelectorAll(".spin-card").forEach((c, idx) => c.dataset.active = idx === cur ? "true" : "false");
+    dots.forEach((d, idx) => d.classList.toggle("active", idx === cur));
+    updateFeat(cur);
+    const live=document.getElementById("spin-live"); if(live&&!instant) live.textContent=SERVICOS[cur].nome;
+  }
+
+  document.getElementById("spin-prev").addEventListener("click", () => rotateTo(cur - 1));
+  document.getElementById("spin-next").addEventListener("click", () => rotateTo(cur + 1));
 
   // clicar num card lateral foca ele
   ring.addEventListener("click", e => {
     const card = e.target.closest(".spin-card");
     if(!card) return;
     const idx = +card.dataset.index;
-    if(idx !== current){ e.stopPropagation(); rotateTo(idx); }
+    if(idx !== cur){ e.stopPropagation(); rotateTo(idx); }
   });
 
   // swipe — impede scroll horizontal da página durante gesto no carrossel
@@ -133,14 +157,14 @@ SERVICOS.forEach(s=>{
     const dx = e.changedTouches[0].clientX - tx;
     const dy = e.changedTouches[0].clientY - ty;
     if(Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 40)
-      rotateTo(dx < 0 ? current + 1 : current - 1);
+      rotateTo(dx < 0 ? cur + 1 : cur - 1);
   }, { passive:true });
 
   // teclado
   document.addEventListener("keydown", e => {
     if(e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
-    if(e.key === "ArrowLeft")  rotateTo(current - 1);
-    if(e.key === "ArrowRight") rotateTo(current + 1);
+    if(e.key === "ArrowLeft")  rotateTo(cur - 1);
+    if(e.key === "ArrowRight") rotateTo(cur + 1);
   });
 
   // resize
@@ -152,7 +176,7 @@ SERVICOS.forEach(s=>{
       card.style.transform = `rotateY(${i * DEG}deg) translateZ(${radius}px)`;
     });
     ring.style.transition = "none";
-    ring.style.transform  = `rotateY(${-current * DEG}deg)`;
+    ring.style.transform  = `rotateY(${-cur * DEG}deg)`;
     requestAnimationFrame(() => { ring.style.transition = ""; });
   });
 
@@ -172,6 +196,25 @@ SERVICOS.forEach(s=>{
   }
 
   rotateTo(0, true);
+
+  // Sync scroll-snap com dots/chips no mobile
+  if ('IntersectionObserver' in window) {
+    var ioCards = new IntersectionObserver(function(entries) {
+      if (window.innerWidth > 760) return;
+      entries.forEach(function(entry) {
+        if (entry.intersectionRatio >= 0.6) {
+          var idx = Array.from(ring.querySelectorAll('.spin-card')).indexOf(entry.target);
+          if (idx !== -1 && idx !== cur) {
+            cur = idx;
+            Array.from(ring.querySelectorAll('.spin-card')).forEach(function(c, i) { c.dataset.active = i === idx ? 'true' : 'false'; });
+            dots.forEach(function(d, i) { d.classList.toggle('active', i === idx); });
+            updateFeat(idx);
+          }
+        }
+      });
+    }, { threshold: 0.6 });
+    ring.querySelectorAll('.spin-card').forEach(function(c) { ioCards.observe(c); });
+  }
 })();
 
 function toggle(name){
@@ -279,7 +322,23 @@ document.getElementById("copy").addEventListener("click",async e=>{
 });
 
 document.querySelectorAll(".js-wa").forEach(a=>a.href=waLink());
-document.getElementById("i-fone").textContent = CONFIG.whatsapp ? "+"+CONFIG.whatsapp.replace(/^(\d{2})(\d{2})(\d{5})(\d{4})$/,"$1 $2 $3-$4") : "Pela DM do Instagram";
+
+// Telefone como link tel:
+(function(){
+  var foneEl = document.getElementById("i-fone");
+  if (!foneEl) return;
+  if (CONFIG.whatsapp) {
+    var formatted = "+"+CONFIG.whatsapp.replace(/^(\d{2})(\d{2})(\d{5})(\d{4})$/,"$1 $2 $3-$4");
+    var link = document.createElement("a");
+    link.href = "tel:+"+CONFIG.whatsapp;
+    link.textContent = formatted;
+    foneEl.textContent = "";
+    foneEl.appendChild(link);
+  } else {
+    foneEl.textContent = "Pela DM do Instagram";
+  }
+})();
+
 document.getElementById("i-end").textContent = CONFIG.endereco;
 document.getElementById("i-hora").textContent = CONFIG.horario;
 
@@ -414,4 +473,36 @@ document.querySelectorAll(".faq details").forEach(d=>{
     localStorage.setItem("theme",next);
     applyTheme(next);
   });
+})();
+
+// Header hide/show ao scroll
+(function(){
+  var header = document.querySelector('header');
+  var lastY = 0;
+  var ticking = false;
+  window.addEventListener('scroll', function() {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(function() {
+      var y = window.scrollY;
+      if (y > lastY && y > 80) {
+        header.classList.add('header--hidden');
+      } else {
+        header.classList.remove('header--hidden');
+      }
+      lastY = y;
+      ticking = false;
+    });
+  }, { passive: true });
+})();
+
+// Mbar aparece só depois que o hero some
+(function(){
+  var hero = document.getElementById('hero');
+  var mbar = document.querySelector('.mbar');
+  if (!hero || !mbar) return;
+  var io = new IntersectionObserver(function(entries) {
+    mbar.classList.toggle('mbar--visible', !entries[0].isIntersecting);
+  }, { threshold: 0 });
+  io.observe(hero);
 })();
