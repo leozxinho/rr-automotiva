@@ -148,7 +148,13 @@
     cardStepLabel = el('span', { class: 'tut-card-step', 'aria-live': 'polite' });
     cardCloseBtn = el('button', { class: 'tut-card-close', type: 'button', 'aria-label': 'Fechar tutorial' });
     cardCloseBtn.textContent = '✕';
-    cHead.append(cardStepLabel, cardCloseBtn);
+    var playBtnCompact = el('button', { class: 'tut-play-btn tut-play-btn-compact', type: 'button', 'aria-label': 'Ouvir / pausar' });
+    playBtnCompact.innerHTML = SVG_PLAY;
+    playBtnCompact.addEventListener('click', function () {
+      if (s.playing) { audio.stop(); setPlayState(false); }
+      else { audio.play(s.step); setPlayState(true); }
+    });
+    cHead.append(cardStepLabel, playBtnCompact, cardCloseBtn);
 
     /* dots */
     cardDots = el('div', { class: 'tut-dots', 'aria-hidden': 'true' });
@@ -340,31 +346,51 @@
 
   /* ── Posicionamento do Card ────────────────────────────── */
   function positionCard(idx) {
+    var target = document.querySelector(STEPS[idx].target);
+    if (!target) return;
+
+    var targetRect = target.getBoundingClientRect();
+    var PAD     = 8;   // padding do spotlight
+    var GAP     = 12;  // distância mínima balão↔spotlight
+    var cardH   = tutCard.offsetHeight || 220;
+    var vpH     = window.innerHeight;
+    var vpW     = window.innerWidth;
+
     if (IS_MOBILE()) {
-      /* mobile: CSS cuida da posição fixa na base */
+      // No mobile, o card está fixo no fundo (CSS).
+      // Calcula se o spotlight vai entrar na área do card.
+      // Se sim, rola a página para que o spotlight fique acima do card.
+      var cardBottom = 68; // bottom do card (px do fundo — ajuste se mudar CSS)
+      var cardTop    = vpH - cardBottom - cardH;
+      var spBottom   = targetRect.bottom + PAD;
+      if (spBottom > cardTop - GAP) {
+        var extra = spBottom - (cardTop - GAP);
+        window.scrollBy({ top: extra, behavior: REDUCED ? 'auto' : 'smooth' });
+      }
       tutCard.style.top  = '';
       tutCard.style.left = '';
       return;
     }
 
-    var target = document.querySelector(STEPS[idx].target);
-    if (!target) return;
+    // Desktop
+    var cardW   = 340;
+    var margin  = 16;
+    var spTop   = targetRect.top    - PAD;
+    var spBot   = targetRect.bottom + PAD;
 
-    var rect      = target.getBoundingClientRect();
-    var cardW     = 340;
-    var cardH     = tutCard.offsetHeight || 380;
-    var margin    = 16;
-    var vpW       = window.innerWidth;
-    var vpH       = window.innerHeight;
+    var spaceBelow = vpH - spBot - GAP;
+    var spaceAbove = spTop - GAP;
 
-    /* prefere abaixo do spotlight, senão acima */
-    var PAD  = 8;
-    var spBot = rect.bottom + PAD + margin;
-    var spTop = rect.top    - PAD - margin - cardH;
+    var top;
+    if (spaceBelow >= cardH || spaceBelow >= spaceAbove) {
+      top = spBot + GAP;
+      if (top + cardH > vpH - margin) top = vpH - cardH - margin;
+    } else {
+      top = spTop - GAP - cardH;
+      if (top < margin) top = margin;
+    }
 
-    var top  = spBot + cardH < vpH ? spBot : Math.max(margin, spTop);
-    /* centraliza horizontalmente em relação ao alvo, mas cabe na tela */
-    var left = rect.left + rect.width / 2 - cardW / 2;
+    var left = targetRect.left + targetRect.width / 2 - cardW / 2;
     left = Math.max(margin, Math.min(left, vpW - cardW - margin));
 
     tutCard.style.top  = top  + 'px';
@@ -836,14 +862,14 @@
     document.querySelectorAll('.js-tut').forEach(function (trigger) {
       trigger.addEventListener('click', function (e) {
         e.preventDefault();
-        openWelcome(trigger);
+        openTutorial(trigger, 0);
       });
     });
 
     window.addEventListener('hashchange', function () {
       if (location.hash === '#tutorial') {
         history.replaceState(null, '', ' ');
-        openWelcome(null);
+        openTutorial(null, 0);
       }
     });
   }

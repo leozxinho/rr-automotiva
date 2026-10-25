@@ -234,7 +234,7 @@ function seg(id,key){
 }
 
 const $=id=>document.getElementById(id);
-["nome","modelo","obs"].forEach(id=>$(id).addEventListener("input",()=>{ $(id).classList.remove("invalid"); const e=$("err-"+id); if(e) e.hidden=true; render(); }));
+["nome","modelo","obs"].forEach(id=>$(id).addEventListener("input",()=>{ $(id).classList.remove("invalid"); $(id).removeAttribute("aria-invalid"); const e=$("err-"+id); if(e) e.hidden=true; render(); }));
 
 let step=1, maxStep=1;
 const STEP_CHECKS={
@@ -246,17 +246,29 @@ function stepOk(n){ return STEP_CHECKS[n]().every(x=>x.ok); }
 function showErrors(n){
   const bad=STEP_CHECKS[n]().filter(x=>!x.ok);
   bad.forEach(x=>{
-    if(x.field){ $(x.field).classList.add("invalid"); $("err-"+x.field).hidden=false; }
+    if(x.field){ $(x.field).classList.add("invalid"); $(x.field).setAttribute("aria-invalid","true"); $("err-"+x.field).hidden=false; }
     else { $(x.err).hidden=false; if(x.box) $(x.box).classList.add("invalid"); }
   });
-  const card=$("qform"); card.classList.remove("shake"); void card.offsetWidth; card.classList.add("shake");
   if(bad[0] && bad[0].field) $(bad[0].field).focus();
   else if(bad[0]) $(bad[0].err).scrollIntoView({behavior:"smooth",block:"center"});
   return !bad.length;
 }
 function goTo(n,scroll=true){
   step=n; maxStep=Math.max(maxStep,n);
-  document.querySelectorAll(".pane").forEach(p=>p.hidden = +p.dataset.step!==n);
+  var prevPane = document.querySelector('.pane:not([hidden])');
+  var nextPane = document.getElementById('st-'+n);
+  if(prevPane && prevPane !== nextPane){
+    prevPane.classList.add('pane--exit');
+    nextPane.hidden = false;
+    nextPane.classList.add('pane--enter');
+    setTimeout(function(){
+      prevPane.hidden = true;
+      prevPane.classList.remove('pane--exit');
+      nextPane.classList.remove('pane--enter');
+    }, 320);
+  } else if(nextPane){
+    nextPane.hidden = false;
+  }
   document.querySelectorAll("#stepper li").forEach(li=>{
     const k=+li.dataset.go;
     li.classList.toggle("is-active",k===n);
@@ -311,7 +323,39 @@ function render(){
   $("send").setAttribute("aria-disabled", stepOk(1)&&stepOk(2)&&stepOk(3) ? "false" : "true");
 }
 $("send").addEventListener("click",e=>{
-  for(const n of [1,2,3]){ if(!stepOk(n)){ e.preventDefault(); if(n!==step) goTo(n); showErrors(n); return; } }
+  if($("send").getAttribute("aria-disabled")==="true"){
+    e.preventDefault();
+    for(const n of [1,2,3]){ if(!stepOk(n)){ if(n!==step) goTo(n); showErrors(n); return; } }
+    return;
+  }
+  e.preventDefault();
+  var btn = $("send");
+  var origHTML = btn.innerHTML;
+  btn.classList.add("btn-wa-loading");
+  btn.innerHTML = ' Abrindo WhatsApp...';
+  var waUrl = waLink(message());
+  setTimeout(function(){
+    btn.classList.remove("btn-wa-loading");
+    btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2.2" d="M5 13l4 4L19 7"/></svg> Enviado!';
+    setTimeout(function(){
+      btn.innerHTML = origHTML;
+      window.open(waUrl, "_blank", "noopener");
+    }, 400);
+  }, 400);
+
+  // Toast ao retornar (visibilitychange)
+  document.addEventListener("visibilitychange", function onVis(){
+    if(document.visibilityState==="visible"){
+      document.removeEventListener("visibilitychange", onVis);
+      var toast = document.createElement("div");
+      toast.className = "toast";
+      toast.textContent = "Mensagem pronta no WhatsApp";
+      document.body.appendChild(toast);
+      void toast.offsetWidth;
+      toast.classList.add("toast--visible");
+      setTimeout(function(){ toast.classList.remove("toast--visible"); setTimeout(function(){ toast.remove(); }, 350); }, 3000);
+    }
+  }, { once: true });
 });
 
 document.getElementById("copy").addEventListener("click",async e=>{

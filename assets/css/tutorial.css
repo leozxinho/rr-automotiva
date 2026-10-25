@@ -181,13 +181,10 @@ body.tour-active .spin-hint svg {
   pointer-events: none;
   opacity: 0;
   transition: opacity var(--dur-base, 320ms) var(--ease, ease);
-  backdrop-filter: blur(0px);
-  -webkit-backdrop-filter: blur(0px);
+  /* sem backdrop-filter — para não afetar o conteúdo destacado */
 }
 .tut-overlay.tut--open {
   opacity: 1;
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
 }
 
 /* camada de sombra que bloqueia cliques fora do spotlight */
@@ -249,7 +246,7 @@ body.tour-active .spin-hint svg {
   border-bottom: 1px solid var(--line);
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   flex: none;
 }
 .tut-card-step {
@@ -307,6 +304,12 @@ body.tour-active .spin-hint svg {
   border-radius: 4px;
 }
 
+/* Card: altura máxima */
+.tut-card {
+  max-height: 40vh;
+  overflow: hidden;
+}
+
 /* ── Card: corpo ─────────────────────────────────────────── */
 .tut-card-body {
   padding: 10px 16px 14px;
@@ -342,6 +345,38 @@ body.tour-active .spin-hint svg {
 .tut-phrase--active {
   background: rgba(224, 20, 30, 0.13);
   color: var(--chrome);
+}
+
+/* Botão de áudio compacto (ícone apenas, fica no head) */
+.tut-play-btn-compact {
+  width: 32px;
+  height: 32px;
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  flex: none;
+  border-radius: var(--r-card, 12px);
+}
+
+/* Oculta a seção de áudio expandida — audio compacto fica no head */
+.tut-card-audio { display: none; }
+
+/* Anterior: ícone; Próxima: botão principal */
+.tut-prev {
+  flex: none;
+  width: 40px;
+  padding: 10px 0;
+  font-size: 0;
+}
+.tut-prev::before {
+  content: '‹';
+  font-size: 20px;
+  line-height: 1;
+}
+.tut-next {
+  flex: 1;
 }
 
 /* ── Card: seção de áudio ────────────────────────────────── */
