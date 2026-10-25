@@ -199,7 +199,7 @@ button:focus-visible,a:focus-visible,[role="button"]:focus-visible{outline:2px s
 
 .tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;margin:0 -12px -12px}
 .tile{position:relative;aspect-ratio:1;overflow:hidden}
-.tile em{position:absolute;left:5px;bottom:4px;font-style:normal;font-family:var(--f-mono);font-size:var(--fs-xs);letter-spacing:0.08em;text-transform:uppercase;color:#fff;text-shadow:0 1px 3px #000;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:calc(100% - 10px)}
+.tile em{position:absolute;left:5px;bottom:4px;font-style:normal;font-family:var(--f-mono);font-size:var(--fs-xs);letter-spacing:0.04em;text-transform:uppercase;color:#fff;text-shadow:0 1px 3px #000;white-space:normal;overflow:hidden;max-width:calc(100% - 10px);line-height:1.3}
 .t-polish{background:linear-gradient(120deg,transparent 40%,rgba(255,255,255,.55) 47%,transparent 54%),linear-gradient(160deg,#ff2a33,#8f070d 60%,#3a0205)}
 .t-beads{background:radial-gradient(circle at 30% 30%,rgba(255,255,255,.7) 0 1.5px,transparent 2.5px) 0 0/14px 14px,radial-gradient(circle at 60% 70%,rgba(255,255,255,.5) 0 2.5px,transparent 3.5px) 0 0/22px 22px,linear-gradient(150deg,#1d2733,#06090d)}
 .t-lamp{background:radial-gradient(circle at 50% 50%,#fff 0 9%,#cfe6ff 12%,rgba(140,180,230,.35) 26%,transparent 42%),radial-gradient(circle at 50% 50%,transparent 44%,#6a6d75 45%,#1a1b1f 52%,transparent 53%),linear-gradient(135deg,#2a2c31,#0c0d10)}
@@ -240,8 +240,10 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px}
   .mbar{display:grid;grid-template-columns:1fr 1fr;position:fixed;left:0;right:0;bottom:0;z-index:55;background:var(--bg);border-top:1px solid var(--line);padding:10px max(12px,env(safe-area-inset-right,0px)) calc(10px + env(safe-area-inset-bottom,0px)) max(12px,env(safe-area-inset-left,0px));gap:10px;opacity:0;pointer-events:none;transform:translateY(100%);transition:opacity var(--dur-base) var(--ease),transform var(--dur-base) var(--ease);padding-bottom:env(safe-area-inset-bottom,0px)}
   .mbar.mbar--visible{opacity:1;pointer-events:auto;transform:translateY(0)}
   .mbar .btn{justify-content:center;padding:12px}
-  /* botões de CTA do rodapé ocultados no mobile — barra fixa já cobre essa ação */
-  .final .ctas{display:none!important}
+  /* seção final: mostra CTA como botão de largura total */
+  .final .ctas{display:flex!important;flex-direction:column;gap:var(--sp-2)}
+  .final .ctas .btn{width:100%;justify-content:center}
+  .final .ctas .btn-ghost{display:none}
   .hero .ctas{display:flex;flex-direction:column;gap:var(--sp-2);margin-top:var(--sp-3)}
   .hero .ctas .btn{width:100%;justify-content:center}
 }
@@ -427,12 +429,12 @@ h1,h2,h3{overflow-wrap:break-word;hyphens:manual}
 .spin-face::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--red);opacity:0;transition:opacity var(--dur-base) var(--ease)}
 .spin-card[data-active="true"] .spin-face{border-color:rgba(224,20,30,.55);box-shadow:0 0 0 1px rgba(224,20,30,.25),0 24px 64px rgba(0,0,0,.55)}
 .spin-card[data-active="true"] .spin-face::before{opacity:1}
-.spin-face .code{font-family:var(--f-mono);font-size:11px;letter-spacing:0.08em;color:var(--red);text-transform:uppercase}
+.spin-face .code{font-family:var(--f-mono);font-size:var(--fs-xs);letter-spacing:0.08em;color:var(--red);text-transform:uppercase}
 .spin-face h3{font-family:var(--f-display);font-size:clamp(16px,2vw,20px);text-transform:uppercase;letter-spacing:.02em;line-height:1.15;margin:0}
 .spin-face p{color:var(--muted);font-size:var(--fs-sm);line-height:1.6;flex:1;margin:0}
 .spin-foot{display:flex;flex-wrap:wrap;align-items:center;gap:8px;border-top:1px solid var(--line);padding-top:14px;margin-top:auto}
-.spin-foot .tag{font-family:var(--f-mono);font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;flex:1}
-.spin-foot .prazo{font-family:var(--f-mono);font-size:11px;color:var(--muted)}
+.spin-foot .tag{font-family:var(--f-mono);font-size:var(--fs-xs);color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;flex:1}
+.spin-foot .prazo{font-family:var(--f-mono);font-size:var(--fs-xs);color:var(--muted)}
 .spin-foot .add{background:none;border:1px solid var(--line);color:var(--chrome);font:600 var(--fs-xs) var(--f-body);letter-spacing:0.08em;text-transform:uppercase;padding:8px 12px;cursor:pointer;transition:all var(--dur-fast) var(--ease)}
 .spin-foot .add:hover{border-color:var(--red)}
 .spin-foot .add[aria-pressed="true"]{background:var(--red);border-color:var(--red);color:#fff}
@@ -474,7 +476,9 @@ h1,h2,h3{overflow-wrap:break-word;hyphens:manual}
   .spin-ring{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;transform:none !important;transition:none !important;padding:0 16px;gap:16px}
   .spin-ring::-webkit-scrollbar{display:none}
   .spin-card{position:relative !important;left:auto !important;top:auto !important;margin:0 !important;opacity:1 !important;flex:0 0 calc(100vw - 48px);max-width:360px;scroll-snap-align:center;cursor:default !important;transform:none !important}
-  .spin-face{height:auto !important;min-height:220px}
+  .spin-face{height:auto !important;min-height:0}
+  .spin-face p{flex:none;font-size:var(--fs-sm)}
+  .spin-foot{margin-top:var(--sp-2)}
   .spin-btn{display:none}
 }
 

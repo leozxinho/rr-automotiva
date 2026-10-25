@@ -72,9 +72,9 @@
   /* ── DOM refs ──────────────────────────────────────────── */
   var welcomeBackdrop, welcomeCard, welcomeStartBtn, welcomeDismissBtn, welcomeNeverBtn;
   var tutOverlay, tutSpotlight, tutCard;
-  var cardStepLabel, cardDots, cardCloseBtn;
+  var cardStepLabel, cardDots, cardCloseBtn, cardFooter;
   var cardTitle, cardText, ttsNotice;
-  var playBtn, muteBtn, speedBtns, autoChk;
+  var playBtn, playBtnCompact, muteBtn, speedBtns, autoChk;
   var prevBtn, nextBtn;
   var fab;
 
@@ -148,7 +148,7 @@
     cardStepLabel = el('span', { class: 'tut-card-step', 'aria-live': 'polite' });
     cardCloseBtn = el('button', { class: 'tut-card-close', type: 'button', 'aria-label': 'Fechar tutorial' });
     cardCloseBtn.textContent = '✕';
-    var playBtnCompact = el('button', { class: 'tut-play-btn tut-play-btn-compact', type: 'button', 'aria-label': 'Ouvir / pausar' });
+    playBtnCompact = el('button', { class: 'tut-play-btn-compact', type: 'button', 'aria-label': 'Ouvir etapa' });
     playBtnCompact.innerHTML = SVG_PLAY;
     playBtnCompact.addEventListener('click', function () {
       if (s.playing) { audio.stop(); setPlayState(false); }
@@ -200,9 +200,10 @@
     cAudio.append(playBtn, audioOpts, ttsNotice);
 
     /* rodapé */
-    var cFooter = el('div', { class: 'tut-card-footer' });
-    prevBtn = el('button', { class: 'tut-prev', type: 'button' });
-    prevBtn.textContent = '‹ Anterior';
+    cardFooter = el('div', { class: 'tut-card-footer' });
+    var cFooter = cardFooter;
+    prevBtn = el('button', { class: 'tut-prev', type: 'button', 'aria-label': 'Etapa anterior' });
+    prevBtn.innerHTML = '';
     nextBtn = el('button', { class: 'tut-next', type: 'button' });
     nextBtn.textContent = 'Próxima ›';
     cFooter.append(prevBtn, nextBtn);
@@ -262,8 +263,12 @@
       nextBtn.textContent = 'Próxima ›';
       nextBtn.classList.remove('tut-next--cta');
     }
-    prevBtn.disabled = idx === 0;
+    prevBtn.hidden = (idx === 0);
     nextBtn.disabled = false;
+    if (cardFooter) {
+      if (idx === 0) cardFooter.setAttribute('data-first', '');
+      else cardFooter.removeAttribute('data-first');
+    }
 
     /* reposiciona spotlight */
     captions.clear();
@@ -311,13 +316,15 @@
     if (!target) { cb && cb(); return; }
 
     if (IS_MOBILE()) {
-      /* garante que o elemento fique visível acima do card (~220px) + header (~60px) */
-      var rect     = target.getBoundingClientRect();
-      var cardH    = 220;
-      var headerH  = 60;
-      var ideal    = rect.top + window.scrollY - headerH - 24;
-      if (rect.top < headerH || rect.bottom > window.innerHeight - cardH - 10) {
-        window.scrollTo({ top: ideal, behavior: REDUCED ? 'auto' : 'smooth' });
+      var rect    = target.getBoundingClientRect();
+      var cardH   = tutCard.offsetHeight || 220;
+      var cardBottom = 68;
+      var visBottom  = window.innerHeight - cardBottom - cardH - 16;
+      /* topo do alvo deve ficar a 16px do topo da tela */
+      var needsScroll = rect.top < 16 || rect.bottom > visBottom;
+      if (needsScroll) {
+        var ideal = rect.top + window.scrollY - 16;
+        window.scrollTo({ top: Math.max(0, ideal), behavior: REDUCED ? 'auto' : 'smooth' });
       }
     } else {
       target.scrollIntoView({ behavior: REDUCED ? 'auto' : 'smooth', block: 'center' });
@@ -338,10 +345,22 @@
     tutSpotlight.style.display = '';
     var rect = target.getBoundingClientRect();
     var PAD  = 8;
-    tutSpotlight.style.top    = (rect.top    - PAD) + 'px';
-    tutSpotlight.style.left   = (rect.left   - PAD) + 'px';
-    tutSpotlight.style.width  = (rect.width  + PAD * 2) + 'px';
-    tutSpotlight.style.height = (rect.height + PAD * 2) + 'px';
+    var spTop    = rect.top  - PAD;
+    var spLeft   = rect.left - PAD;
+    var spWidth  = rect.width  + PAD * 2;
+    var spHeight = rect.height + PAD * 2;
+
+    if (IS_MOBILE()) {
+      var cardH      = tutCard.offsetHeight || 220;
+      var cardBottom = 68;
+      var visBottom  = window.innerHeight - cardBottom - cardH - 8;
+      spHeight = Math.max(0, Math.min(spTop + spHeight, visBottom) - spTop);
+    }
+
+    tutSpotlight.style.top    = spTop    + 'px';
+    tutSpotlight.style.left   = spLeft   + 'px';
+    tutSpotlight.style.width  = spWidth  + 'px';
+    tutSpotlight.style.height = spHeight + 'px';
   }
 
   /* ── Posicionamento do Card ────────────────────────────── */
@@ -588,9 +607,17 @@
     if (playing) {
       playBtn.innerHTML = SVG_PAUSE + ' Pausar';
       playBtn.setAttribute('aria-label', 'Pausar');
+      if (playBtnCompact) {
+        playBtnCompact.innerHTML = SVG_PAUSE;
+        playBtnCompact.setAttribute('aria-label', 'Pausar');
+      }
     } else {
       playBtn.innerHTML = SVG_PLAY + ' Ouvir';
       playBtn.setAttribute('aria-label', 'Ouvir esta etapa');
+      if (playBtnCompact) {
+        playBtnCompact.innerHTML = SVG_PLAY;
+        playBtnCompact.setAttribute('aria-label', 'Ouvir etapa');
+      }
     }
   }
 

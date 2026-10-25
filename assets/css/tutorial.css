@@ -349,46 +349,27 @@ body.tour-active .spin-hint svg {
 
 /* Botão de áudio compacto (ícone apenas, fica no head) */
 .tut-play-btn-compact {
-  width: 32px;
-  height: 32px;
+  width: 40px;
+  height: 40px;
   min-width: 0;
   min-height: 0;
   padding: 0;
   display: grid;
   place-items: center;
   flex: none;
-  border-radius: var(--r-card, 12px);
+  background: transparent;
+  border: 1px solid var(--line);
+  color: var(--muted);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: border-color var(--dur-fast, 180ms) var(--ease, ease),
+              color var(--dur-fast, 180ms) var(--ease, ease);
 }
+.tut-play-btn-compact:hover { border-color: var(--chrome); color: var(--chrome); }
+.tut-play-btn-compact[aria-label*="Pausar"] { color: var(--red); border-color: rgba(224,20,30,.4); }
 
-/* Oculta a seção de áudio expandida — audio compacto fica no head */
+/* ── Card: seção de áudio — oculta; compact play fica no head */
 .tut-card-audio { display: none; }
-
-/* Anterior: ícone; Próxima: botão principal */
-.tut-prev {
-  flex: none;
-  width: 40px;
-  padding: 10px 0;
-  font-size: 0;
-}
-.tut-prev::before {
-  content: '‹';
-  font-size: 20px;
-  line-height: 1;
-}
-.tut-next {
-  flex: 1;
-}
-
-/* ── Card: seção de áudio ────────────────────────────────── */
-.tut-card-audio {
-  flex: none;
-  padding: 10px 14px;
-  border-top: 1px solid var(--line);
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 8px;
-}
 .tut-play-btn {
   display: inline-flex;
   align-items: center;
@@ -495,43 +476,59 @@ body.tour-active .spin-hint svg {
   width: 100%;
 }
 
-/* ── Card: rodapé (botões de nav) ────────────────────────── */
+/* ── Card: rodapé — grid 44px + 1fr; data-first → só Próxima */
 .tut-card-footer {
   flex: none;
   padding: 10px 14px 14px;
   border-top: 1px solid var(--line);
-  display: flex;
+  display: grid;
+  grid-template-columns: 44px 1fr;
   gap: 8px;
+}
+.tut-card-footer[data-first] {
+  grid-template-columns: 1fr;
 }
 .tut-prev,
 .tut-next {
-  flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  padding: 11px 12px;
   background: none;
   border: 1px solid var(--line);
   border-radius: 8px;
   color: var(--muted);
   font-family: var(--f-body);
   font-weight: 600;
-  font-size: 13px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   cursor: pointer;
-  transition: border-color var(--dur-fast, 180ms) var(--ease, ease), color var(--dur-fast, 180ms) var(--ease, ease), background var(--dur-fast, 180ms) var(--ease, ease);
+  transition: border-color var(--dur-fast, 180ms) var(--ease, ease),
+              color var(--dur-fast, 180ms) var(--ease, ease),
+              background var(--dur-fast, 180ms) var(--ease, ease);
   white-space: nowrap;
+}
+.tut-prev {
+  padding: 0;
+  font-size: 0;
+  height: 44px;
+}
+.tut-prev::before {
+  content: '‹';
+  font-size: 20px;
+  line-height: 1;
+}
+.tut-next {
+  padding: 11px 12px;
+  font-size: 13px;
+  gap: 6px;
 }
 .tut-prev:hover,
 .tut-next:hover { border-color: var(--chrome); color: var(--chrome); }
-.tut-prev:disabled { opacity: 0.3; cursor: default; }
 .tut-next--cta {
   background: var(--red);
   border-color: var(--red);
   color: #fff;
-  font-size: 12px;
+  font-size: var(--fs-xs);
 }
 .tut-next--cta:hover { background: var(--red-deep); border-color: var(--red-deep); color: #fff; }
 
@@ -628,23 +625,17 @@ body.tour-active .spin-hint svg {
     flex: none;
   }
 
-  /* Rodapé: botões compactos na mesma linha */
+  /* Rodapé: grid compacto */
   .tut-card-footer {
     padding: 8px 14px 14px;
     gap: 8px;
   }
   .tut-prev {
-    flex: none;
-    padding: 10px 14px;
-    font-size: 12px;
-    min-width: 0;
+    height: 40px;
   }
   .tut-next {
-    font-size: 12px;
-    padding: 10px 14px;
-  }
-  .tut-next--cta {
-    font-size: 11px;
+    font-size: var(--fs-xs);
+    padding: 10px 12px;
   }
 }
 

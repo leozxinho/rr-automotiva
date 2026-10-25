@@ -10,8 +10,8 @@ var TUTORIAL_DATA = {
     {
       id: 1,
       title: "Bem-vindo!",
-      target: "#servicos",
-      targetLabel: "seção de serviços",
+      target: ".hero-grid > div:first-child",
+      targetLabel: "bloco de apresentação do hero",
       audio: null,
       timestamps: null,
       phrases: [
@@ -153,7 +153,7 @@ var TUTORIAL_DATA = {
     {
       id: 10,
       title: "Monte seu Orçamento",
-      target: "#orcamento",
+      target: "#orcamento > .wrap",
       targetLabel: "formulário de orçamento",
       audio: null,
       timestamps: null,
