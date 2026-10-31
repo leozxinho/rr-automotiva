@@ -186,8 +186,7 @@ body.tour-active .tut-fab {
 
 /* Pausa animações de fundo */
 body.tour-active .ticker-track,
-body.tour-active .logo-plate::after,
-body.tour-active .spin-hint svg {
+body.tour-active .logo-plate::after {
   animation-play-state: paused;
 }
 
@@ -332,7 +331,6 @@ body.tour-active .spin-hint svg {
   overflow-y: auto;
   overscroll-behavior: contain;
   min-height: 0;
-  max-height: 200px;
 }
 .tut-card-title {
   font-family: var(--f-display);
@@ -364,8 +362,8 @@ body.tour-active .spin-hint svg {
 
 /* Botão de áudio compacto (ícone apenas, fica no head) */
 .tut-play-btn-compact {
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   min-width: 0;
   min-height: 0;
   padding: 0;
@@ -572,30 +570,50 @@ body.tour-active .spin-hint svg {
     letter-spacing: 0.08em;
   }
   .tut-card-close {
-    width: 26px;
-    height: 26px;
+    width: 44px;
+    height: 44px;
     font-size: 13px;
-    border-radius: 6px;
+    border-radius: 8px;
   }
 
-  /* Dots → barra de progresso segmentada */
+  /* Dots → barra de progresso segmentada, área de toque 44px */
   .tut-dots {
-    padding: 0 14px 10px;
+    padding: 0 14px;
     gap: 3px;
   }
   .tut-dot,
   .tut-dot.tut-dot--active {
     flex: 1;
-    height: 3px;
+    height: 44px;        /* área de toque */
     width: auto;
-    border-radius: 2px;
+    border-radius: 0;
+    background: transparent;
     cursor: pointer;
+    position: relative;
+    transition: none;
+  }
+  /* barra visual de 3px centralizada */
+  .tut-dot::before,
+  .tut-dot.tut-dot--active::before {
+    content: '';
+    position: absolute;
+    left: 0; right: 0;
+    top: 50%; transform: translateY(-50%);
+    height: 3px;
+    border-radius: 2px;
+    background: var(--line);
     transition: background var(--dur-base, 320ms) var(--ease, ease);
+  }
+  .tut-dot.tut-dot--done::before {
+    background: rgba(224, 20, 30, 0.5);
+  }
+  .tut-dot.tut-dot--active::before {
+    background: var(--red);
   }
 
   /* Corpo: sem scroll, fonte compacta */
   .tut-card-body {
-    padding: 0 14px 12px;
+    padding: 4px 14px 12px;
     max-height: none;
     overflow: visible;
   }
@@ -646,11 +664,12 @@ body.tour-active .spin-hint svg {
     gap: 8px;
   }
   .tut-prev {
-    height: 40px;
+    height: 44px;
   }
   .tut-next {
     font-size: var(--fs-xs);
     padding: 10px 12px;
+    min-height: 44px;
   }
 }
 
@@ -691,10 +710,17 @@ body.tour-active .spin-hint svg {
   color: #fff;
   border-color: var(--red);
 }
-/* acima da .mbar no mobile */
+/* acima da .mbar no mobile — ícone-only para não cobrir conteúdo */
 @media (max-width: 760px) {
   .tut-fab {
     bottom: calc(env(safe-area-inset-bottom, 0px) + 80px);
+    padding: 12px;
+    gap: 0;
+    font-size: 0;
+    width: 44px;
+    height: 44px;
+    justify-content: center;
+    border-radius: 50%;
   }
 }
 
@@ -821,7 +847,8 @@ body.tour-active .spin-hint svg {
   .tut-card,
   .tut-fab,
   .tut-phrase,
-  .tut-dot {
+  .tut-dot,
+  .tut-dot::before {
     transition: none !important;
     animation: none !important;
   }

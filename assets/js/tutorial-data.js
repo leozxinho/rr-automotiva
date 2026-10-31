@@ -1,6 +1,6 @@
 /* ============================================================
    RR Studio Details — Tutorial "Como funciona"
-   10 etapas: intro + 8 serviços (carrossel) + orçamento.
+   10 etapas: intro + 8 serviços + orçamento.
    Edite os textos aqui; não toque em tutorial.js.
    ============================================================ */
 
@@ -12,8 +12,8 @@ var TUTORIAL_DATA = {
       title: "Bem-vindo!",
       target: ".hero-grid > div:first-child",
       targetLabel: "bloco de apresentação do hero",
-      audio: null,
-      timestamps: null,
+      audio: "assets/audio/tour/tour-01.mp3",
+      timestamps: [0.1, 5.132],
       phrases: [
         "Olá! Bem-vindo à RR Studio Details.",
         "Vou te mostrar os 8 serviços disponíveis e como pedir o orçamento."
@@ -25,14 +25,13 @@ var TUTORIAL_DATA = {
     {
       id: 2,
       title: "Lavagem Geral",
-      target: ".spin-card[data-active=\"true\"]",
+      target: ".svc[data-svc-idx=\"0\"]",
       targetLabel: "card de lavagem geral",
-      carouselIndex: 0,
-      audio: null,
-      timestamps: null,
+      audio: "assets/audio/tour/tour-02.mp3",
+      timestamps: [0.1, 6.308],
       phrases: [
         "Limpeza técnica do exterior com a técnica dos dois baldes — sem arranhar a pintura.",
-        "Atenção especial a rodas, caixas de roda e frisos. Feito no mesmo dia."
+        "Atenção especial a rodas, caixas de roda e frisos."
       ],
       icon: `<svg viewBox="0 0 64 64" width="56" height="56" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 38c4-10 30-10 34 0"/><path d="M8 42l4-8h40l4 8"/><rect x="6" y="42" width="52" height="10" rx="4"/><circle cx="19" cy="42" r="4" fill="currentColor" stroke="none"/><circle cx="45" cy="42" r="4" fill="currentColor" stroke="none"/><path d="M28 20c0-4 8-4 8 0s-8 4-8 8"/></svg>`
     },
@@ -41,14 +40,13 @@ var TUTORIAL_DATA = {
     {
       id: 3,
       title: "Higienização Completa",
-      target: ".spin-card[data-active=\"true\"]",
+      target: ".svc[data-svc-idx=\"1\"]",
       targetLabel: "card de higienização",
-      carouselIndex: 1,
-      audio: null,
-      timestamps: null,
+      audio: "assets/audio/tour/tour-03.mp3",
+      timestamps: [0.1, 7.436],
       phrases: [
         "Interior completo: bancos, carpetes, teto e forros com extratora e produtos específicos.",
-        "Elimina manchas, odores e ácaros. Prazo: 1 dia."
+        "Elimina manchas, odores e ácaros."
       ],
       icon: `<svg viewBox="0 0 64 64" width="56" height="56" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="14" y="22" width="36" height="26" rx="3"/><path d="M22 22v-6a6 6 0 0 1 12 0"/><path d="M14 32h36"/><circle cx="32" cy="42" r="4"/></svg>`
     },
@@ -57,14 +55,13 @@ var TUTORIAL_DATA = {
     {
       id: 4,
       title: "Polimento",
-      target: ".spin-card[data-active=\"true\"]",
+      target: ".svc[data-svc-idx=\"2\"]",
       targetLabel: "card de polimento",
-      carouselIndex: 2,
-      audio: null,
-      timestamps: null,
+      audio: "assets/audio/tour/tour-04.mp3",
+      timestamps: [0.1, 5.684],
       phrases: [
         "Corrige riscos, hologramas e marcas de lavagem com corte e refino.",
-        "Devolve profundidade à cor e reflexo de espelho. Prazo: 1 a 2 dias."
+        "Devolve profundidade à cor e reflexo de espelho."
       ],
       icon: `<svg viewBox="0 0 64 64" width="56" height="56" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="32" cy="32" r="18"/><path d="M32 14v4M32 46v4M14 32h4M46 32h4"/><circle cx="32" cy="32" r="8"/></svg>`
     },
@@ -73,14 +70,13 @@ var TUTORIAL_DATA = {
     {
       id: 5,
       title: "Enceramento",
-      target: ".spin-card[data-active=\"true\"]",
+      target: ".svc[data-svc-idx=\"3\"]",
       targetLabel: "card de enceramento",
-      carouselIndex: 3,
-      audio: null,
-      timestamps: null,
+      audio: "assets/audio/tour/tour-05.mp3",
+      timestamps: [0.1, 6.764],
       phrases: [
         "Cera protetora sobre a pintura corrigida: mais brilho e proteção contra sol e chuva ácida.",
-        "Ideal após o polimento. Feito em meio dia."
+        "Ideal após o polimento."
       ],
       icon: `<svg viewBox="0 0 64 64" width="56" height="56" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 44c0-8 24-8 24 0"/><path d="M16 48h32"/><path d="M24 20c2-6 14-6 16 0l2 8H22z"/><line x1="32" y1="28" x2="32" y2="44"/></svg>`
     },
@@ -89,14 +85,13 @@ var TUTORIAL_DATA = {
     {
       id: 6,
       title: "PPF — Película de Proteção",
-      target: ".spin-card[data-active=\"true\"]",
+      target: ".svc[data-svc-idx=\"4\"]",
       targetLabel: "card de PPF",
-      carouselIndex: 4,
-      audio: null,
-      timestamps: null,
+      audio: "assets/audio/tour/tour-06.mp3",
+      timestamps: [0.1, 7.316],
       phrases: [
         "Película invisível nas regiões mais vulneráveis: soleiras, quinas de porta, concha e mídias.",
-        "Protege o verniz original contra pedriscos e arranhões. Prazo: 1 dia."
+        "Protege o verniz original contra pedriscos e arranhões."
       ],
       icon: `<svg viewBox="0 0 64 64" width="56" height="56" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M32 10l20 10v14c0 10-8 18-20 20C20 52 12 44 12 34V20z"/><path d="M23 32l6 6 12-12"/></svg>`
     },
@@ -105,14 +100,13 @@ var TUTORIAL_DATA = {
     {
       id: 7,
       title: "Vitrificação",
-      target: ".spin-card[data-active=\"true\"]",
+      target: ".svc[data-svc-idx=\"5\"]",
       targetLabel: "card de vitrificação",
-      carouselIndex: 5,
-      audio: null,
-      timestamps: null,
+      audio: "assets/audio/tour/tour-07.mp3",
+      timestamps: [0.1, 7.004],
       phrases: [
         "Proteção cerâmica sobre a pintura: água em bolhas, sujeira fácil de lavar e brilho intenso.",
-        "A proteção de maior durabilidade. Cura em 24 horas."
+        "A proteção de maior durabilidade."
       ],
       icon: `<svg viewBox="0 0 64 64" width="56" height="56" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M32 14c0 0-14 16-14 26a14 14 0 0 0 28 0C46 30 32 14 32 14z"/><path d="M24 42c2 4 6 6 10 6"/></svg>`
     },
@@ -121,14 +115,13 @@ var TUTORIAL_DATA = {
     {
       id: 8,
       title: "Hidratação de Couro",
-      target: ".spin-card[data-active=\"true\"]",
+      target: ".svc[data-svc-idx=\"6\"]",
       targetLabel: "card de hidratação de couro",
-      carouselIndex: 6,
-      audio: null,
-      timestamps: null,
+      audio: "assets/audio/tour/tour-08.mp3",
+      timestamps: [0.1, 5.468],
       phrases: [
         "Limpeza com pH adequado e hidratante específico para couro automotivo.",
-        "Previne rachaduras e mantém volante e bancos como novos. Feito em meio dia."
+        "Previne rachaduras e mantém volante e bancos como novos."
       ],
       icon: `<svg viewBox="0 0 64 64" width="56" height="56" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="10" y="30" width="44" height="20" rx="6"/><path d="M10 36h44"/><path d="M22 30v-8a10 10 0 0 1 20 0v8"/></svg>`
     },
@@ -137,14 +130,13 @@ var TUTORIAL_DATA = {
     {
       id: 9,
       title: "Restauração de Faróis",
-      target: ".spin-card[data-active=\"true\"]",
+      target: ".svc[data-svc-idx=\"7\"]",
       targetLabel: "card de restauração de faróis",
-      carouselIndex: 7,
-      audio: null,
-      timestamps: null,
+      audio: "assets/audio/tour/tour-09.mp3",
+      timestamps: [0.1, 5.684],
       phrases: [
         "Lixamento, polimento e verniz UV nos faróis amarelados ou opacos.",
-        "Resultado: mais luz na pista e visual renovado. Feito em meio dia."
+        "Resultado: mais luz na pista e visual renovado."
       ],
       icon: `<svg viewBox="0 0 64 64" width="56" height="56" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 32a18 18 0 0 1 18-18"/><path d="M14 32a18 18 0 0 0 18 18"/><path d="M32 14h6a14 14 0 0 1 0 36h-6"/><path d="M38 26l10-6M38 32h10M38 38l10 6"/></svg>`
     },
@@ -155,8 +147,8 @@ var TUTORIAL_DATA = {
       title: "Monte seu Orçamento",
       target: "#orcamento > .wrap",
       targetLabel: "formulário de orçamento",
-      audio: null,
-      timestamps: null,
+      audio: "assets/audio/tour/tour-10.mp3",
+      timestamps: [0.1, 6.14],
       phrases: [
         "Nome, veículo, serviços e data — tudo em 3 passos simples.",
         "A mensagem vai montada para o WhatsApp. Você confere antes de enviar. Orçamento gratuito!"

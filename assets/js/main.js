@@ -13,14 +13,14 @@ const CONFIG = {
 /* =========================================== */
 
 const SERVICOS = [
-  {code:"LG-01", nome:"Lavagem geral",         desc:"Lavagem técnica completa com dois baldes, rodas, caixas de roda, frisos, vãos de porta e acabamento com cera de proteção.",                                    prazo:"no dia",     tag:"Externo",   featured:true},
-  {code:"HI-02", nome:"Higienização completa", desc:"Bancos, carpetes, teto e forros limpos com extratora e produtos para cada material. Tira mancha, odor e ácaro.",                                               prazo:"1 dia",      tag:"Interior",  featured:true},
-  {code:"PT-03", nome:"Polimento",             desc:"Correção de riscos, hologramas e marcas de lavagem com corte e refino. Devolve profundidade à cor e reflexo de espelho.",                                      prazo:"1–2 dias",   tag:"Pintura",   featured:true},
-  {code:"EC-04", nome:"Enceramento",           desc:"Aplicação de cera protetora sobre a pintura polida para mais brilho, proteção contra sol e chuva ácida e fácil manutenção.",                                  prazo:"meio dia",   tag:"Proteção",  featured:true},
-  {code:"PF-05", nome:"PPF",                   desc:"Película de proteção de pintura nas regiões mais vulneráveis: soleira, quina de porta, concha de porta e mídias. Preserva o verniz original.",               prazo:"1 dia",      tag:"Proteção",  featured:true},
-  {code:"VT-06", nome:"Vitrificação",          desc:"Proteção cerâmica sobre a pintura já corrigida. Mais brilho, água escorrendo fácil e sujeira que sai na lavagem simples.",                                    prazo:"+24h cura",  tag:"Proteção"},
-  {code:"CR-07", nome:"Hidratação de couro",   desc:"Limpeza com pH adequado e hidratante que repõe a maciez do couro e evita rachaduras no volante e nos bancos.",                                                prazo:"meio dia",   tag:"Interior"},
-  {code:"FA-08", nome:"Restauração de faróis", desc:"Lixamento, polimento e verniz UV nos faróis amarelados. Mais luz na pista e o carro com cara de novo.",                                                       prazo:"meio dia",   tag:"Externo"}
+  {code:"LG-01", nome:"Lavagem geral",         desc:"Lavagem técnica completa com dois baldes, rodas, caixas de roda, frisos, vãos de porta e acabamento com cera de proteção.",                     tag:"Externo",  featured:true},
+  {code:"HI-02", nome:"Higienização completa", desc:"Bancos, carpetes, teto e forros limpos com extratora e produtos para cada material. Tira mancha, odor e ácaro.",                                          tag:"Interior", featured:true},
+  {code:"PT-03", nome:"Polimento",             desc:"Correção de riscos, hologramas e marcas de lavagem com corte e refino. Devolve profundidade à cor e reflexo de espelho.",                                 tag:"Pintura",  featured:true},
+  {code:"EC-04", nome:"Enceramento",           desc:"Aplicação de cera protetora sobre a pintura polida para mais brilho, proteção contra sol e chuva ácida e fácil manutenção.",                             tag:"Proteção", featured:true},
+  {code:"PF-05", nome:"PPF",                   desc:"Película de proteção de pintura nas regiões mais vulneráveis: soleira, quina de porta, concha de porta e mídias. Preserva o verniz original.",           tag:"Proteção", featured:true},
+  {code:"VT-06", nome:"Vitrificação",          desc:"Proteção cerâmica sobre a pintura já corrigida. Mais brilho, água escorrendo fácil e sujeira que sai na lavagem simples.",                               tag:"Proteção"},
+  {code:"CR-07", nome:"Hidratação de couro",   desc:"Limpeza com pH adequado e hidratante que repõe a maciez do couro e evita rachaduras no volante e nos bancos.",                                           tag:"Interior"},
+  {code:"FA-08", nome:"Restauração de faróis", desc:"Lixamento, polimento e verniz UV nos faróis amarelados. Mais luz na pista e o carro com cara de novo.",                                                  tag:"Externo"}
 ];
 
 const state = { sel:new Set(), dia:null, hora:null, view:null };
@@ -40,181 +40,19 @@ SERVICOS.forEach(s=>{
   chips.appendChild(c);
 });
 
-// POV Carousel — serviços
+// Lista de serviços
 (function(){
-  const wrap = document.getElementById("menu");
-  const N = SERVICOS.length;
-  const DEG = 360 / N;
-
-  function getRadius(){
-    return window.innerWidth <= 440 ? 310 : window.innerWidth <= 760 ? 355 : 430;
-  }
-
-  let radius = getRadius();
-  let cur = 0;
-
-  wrap.className = "spin-wrap";
-  wrap.setAttribute("aria-roledescription","carrossel");
-  wrap.setAttribute("aria-label","Serviços do studio");
-  wrap.innerHTML = `<div class="sr-only" id="spin-live" aria-live="polite" aria-atomic="true"></div>`+`
-    <div class="spin-scene" id="spin-scene">
-      <div class="spin-ring" id="spin-ring"></div>
-    </div>
-    <div class="spin-nav">
-      <button class="spin-btn" id="spin-prev" aria-label="Serviço anterior">&#8249;</button>
-      <div class="spin-dots" id="spin-dots"></div>
-      <button class="spin-btn" id="spin-next" aria-label="Próximo serviço">&#8250;</button>
-    </div>`;
-
-  const ring = document.getElementById("spin-ring");
-
-  SERVICOS.forEach((s, i) => {
-    const card = document.createElement("div");
-    card.className = "spin-card";
-    card.dataset.index = i;
-    card.style.transform = `rotateY(${i * DEG}deg) translateZ(${radius}px)`;
-    card.innerHTML = `<div class="spin-face">
-      ${s.featured ? '<span class="feat-star" aria-hidden="true">★</span>' : ''}
-      <span class="code">${s.code}</span>
-      <h3>${s.nome}</h3>
-      <p>${s.desc}</p>
-      <div class="spin-foot">
-        <span class="tag">${s.tag}</span>
-        <span class="prazo">${s.prazo}</span>
-        <button type="button" class="add" data-s="${s.nome}" aria-pressed="false">+ Orçamento</button>
-      </div>
-    </div>`;
-    ring.appendChild(card);
-  });
-
-  const dotsEl = document.getElementById("spin-dots");
-  const dots = [];
-  SERVICOS.forEach((s, i) => {
-    const d = document.createElement("button");
-    d.type="button"; d.className="spin-dot"; d.setAttribute("aria-label", s.nome);
-    d.addEventListener("click", () => rotateTo(i));
-    dotsEl.appendChild(d);
-    dots.push(d);
-  });
-
-  function updateFeat(idx) {
-    document.querySelectorAll(".feat-chip").forEach(c => c.classList.toggle("active", +c.dataset.serviceIndex === idx));
-  }
-
-  function rotateTo(i, instant){
-    // No mobile, scroll em vez de rotação 3D
-    if (window.innerWidth <= 760) {
-      var cards = Array.from(ring.querySelectorAll('.spin-card'));
-      if (cards[i]) {
-        cards[i].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-        cards.forEach(function(c, idx) {
-          c.dataset.active = idx === i ? 'true' : 'false';
-        });
-        dots.forEach(function(d, idx) {
-          d.classList.toggle('active', idx === i);
-        });
-        cur = i;
-        updateFeat(i);
-        const live=document.getElementById("spin-live"); if(live&&!instant) live.textContent=SERVICOS[cur].nome;
-      }
-      return; // não executa rotação 3D
-    }
-
-    cur = ((i % N) + N) % N;
-    if(instant) ring.style.transition = "none";
-    ring.style.transform = `rotateY(${-cur * DEG}deg)`;
-    if(instant) requestAnimationFrame(() => { ring.style.transition = ""; });
-    document.querySelectorAll(".spin-card").forEach((c, idx) => c.dataset.active = idx === cur ? "true" : "false");
-    dots.forEach((d, idx) => d.classList.toggle("active", idx === cur));
-    updateFeat(cur);
-    const live=document.getElementById("spin-live"); if(live&&!instant) live.textContent=SERVICOS[cur].nome;
-  }
-
-  document.getElementById("spin-prev").addEventListener("click", () => rotateTo(cur - 1));
-  document.getElementById("spin-next").addEventListener("click", () => rotateTo(cur + 1));
-
-  // clicar num card lateral foca ele
-  ring.addEventListener("click", e => {
-    const card = e.target.closest(".spin-card");
-    if(!card) return;
-    const idx = +card.dataset.index;
-    if(idx !== cur){ e.stopPropagation(); rotateTo(idx); }
-  });
-
-  // swipe — impede scroll horizontal da página durante gesto no carrossel
-  let tx = 0, ty = 0;
-  const scene = document.getElementById("spin-scene");
-  scene.addEventListener("touchstart", e => {
-    tx = e.touches[0].clientX;
-    ty = e.touches[0].clientY;
-  }, { passive:true });
-  scene.addEventListener("touchmove", e => {
-    const dx = Math.abs(e.touches[0].clientX - tx);
-    const dy = Math.abs(e.touches[0].clientY - ty);
-    if(dx > dy) e.preventDefault(); // gesto horizontal: bloqueia scroll da página
-  }, { passive:false });
-  scene.addEventListener("touchend", e => {
-    const dx = e.changedTouches[0].clientX - tx;
-    const dy = e.changedTouches[0].clientY - ty;
-    if(Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 40)
-      rotateTo(dx < 0 ? cur + 1 : cur - 1);
-  }, { passive:true });
-
-  // teclado
-  document.addEventListener("keydown", e => {
-    if(e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
-    if(e.key === "ArrowLeft")  rotateTo(cur - 1);
-    if(e.key === "ArrowRight") rotateTo(cur + 1);
-  });
-
-  // resize
-  window.addEventListener("resize", () => {
-    const r = getRadius();
-    if(r === radius) return;
-    radius = r;
-    document.querySelectorAll(".spin-card").forEach((card, i) => {
-      card.style.transform = `rotateY(${i * DEG}deg) translateZ(${radius}px)`;
-    });
-    ring.style.transition = "none";
-    ring.style.transform  = `rotateY(${-cur * DEG}deg)`;
-    requestAnimationFrame(() => { ring.style.transition = ""; });
-  });
-
-  // featured service chips
-  const featRow = document.getElementById("feat-row");
-  if (featRow) {
-    SERVICOS.forEach((s, i) => {
-      if (!s.featured) return;
-      const btn = document.createElement("button");
-      btn.type = "button";
-      btn.className = "feat-chip";
-      btn.textContent = s.nome;
-      btn.dataset.serviceIndex = i;
-      btn.addEventListener("click", () => rotateTo(i));
-      featRow.appendChild(btn);
-    });
-  }
-
-  rotateTo(0, true);
-
-  // Sync scroll-snap com dots/chips no mobile
-  if ('IntersectionObserver' in window) {
-    var ioCards = new IntersectionObserver(function(entries) {
-      if (window.innerWidth > 760) return;
-      entries.forEach(function(entry) {
-        if (entry.intersectionRatio >= 0.6) {
-          var idx = Array.from(ring.querySelectorAll('.spin-card')).indexOf(entry.target);
-          if (idx !== -1 && idx !== cur) {
-            cur = idx;
-            Array.from(ring.querySelectorAll('.spin-card')).forEach(function(c, i) { c.dataset.active = i === idx ? 'true' : 'false'; });
-            dots.forEach(function(d, i) { d.classList.toggle('active', i === idx); });
-            updateFeat(idx);
-          }
-        }
-      });
-    }, { threshold: 0.6 });
-    ring.querySelectorAll('.spin-card').forEach(function(c) { ioCards.observe(c); });
-  }
+  var wrap = document.getElementById("menu");
+  if (!wrap) return;
+  wrap.innerHTML = SERVICOS.map(function(s, i) {
+    return '<div class="svc" data-svc-idx="' + i + '">' +
+      '<span class="code">' + s.code + '</span>' +
+      '<div><h3>' + s.nome + '</h3><p>' + s.desc + '</p></div>' +
+      '<div class="meta">' +
+        '<button type="button" class="add" data-s="' + s.nome + '" aria-pressed="false">+ Orçamento</button>' +
+      '</div>' +
+    '</div>';
+  }).join("");
 })();
 
 function toggle(name){
